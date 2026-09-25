@@ -404,7 +404,6 @@
         let inventory = [];
         let marketItems = [];
 
-        // Функция генерации 100 случайных товаров
         function generate100Items() {
             const list = [];
             const categories = Object.keys(itemTemplates);
@@ -414,7 +413,6 @@
                 const templates = itemTemplates[cat];
                 const template = templates[Math.floor(Math.random() * templates.length)];
                 
-                // Случайная скидка на рынке (от 20% до 50% от реальной цены)
                 const discount = 0.5 + Math.random() * 0.3;
                 const realValue = template.basePrice;
                 const price = Math.round((realValue * discount) / 100) * 100;
@@ -426,7 +424,8 @@
                     price: price,
                     realValue: realValue,
                     img: template.img,
-                    desc: descriptions[Math.floor(Math.random() * descriptions.length)]
+                    desc: descriptions[Math.floor(Math.random() * descriptions.length)],
+                    bargainRefused: false // Флаг: отказывал ли продавец в торгах
                 });
             }
             return list;
@@ -530,9 +529,20 @@
 
             if (currentTab === 'market') {
                 document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽ (Рыночная: ~${item.realValue.toLocaleString()} ₽)`;
-                chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
+                
+                if (item.bargainRefused) {
+                    chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно. Без торга!</div>';
+                } else {
+                    chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
+                }
+
+                // Показываем кнопку торга только если продавец НЕ отказывал в скидке ранее
+                const bargainBtnHTML = item.bargainRefused 
+                    ? '' 
+                    : `<button id="bargain-btn" class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>`;
+
                 actions.innerHTML = `
-                    <button class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>
+                    ${bargainBtnHTML}
                     <button class="action-btn" onclick="buyItem()">🛒 Купить прямо сейчас</button>
                     <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
                 `;
@@ -573,15 +583,26 @@
             chat.innerHTML += `<div class="msg player">Скинете цену? Заберу быстрей!</div>`;
             
             if (Math.random() > 0.4) {
+                // Успешный торг: скидываем цену
                 const newPrice = Math.round(selectedItem.price * 0.85);
                 selectedItem.price = newPrice;
                 document.getElementById('modal-price').innerText = `${newPrice.toLocaleString()} ₽ (Рыночная: ~${selectedItem.realValue.toLocaleString()} ₽)`;
                 saveGame();
+                renderFeed();
                 setTimeout(() => {
                     chat.innerHTML += `<div class="msg seller">Ладно, отдам за ${newPrice.toLocaleString()} ₽!</div>`;
                     chat.scrollTop = chat.scrollHeight;
                 }, 400);
             } else {
+                // Продавец отказывается: запоминаем отказ и убираем кнопку торга
+                selectedItem.bargainRefused = true;
+                saveGame();
+                
+                const bargainBtn = document.getElementById('bargain-btn');
+                if (bargainBtn) {
+                    bargainBtn.remove(); // Удаляем кнопку с экрана
+                }
+
                 setTimeout(() => {
                     chat.innerHTML += `<div class="msg seller">Нет, без торга!</div>`;
                     chat.scrollTop = chat.scrollHeight;
