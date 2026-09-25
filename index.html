@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -52,7 +51,7 @@
         }
 
         .balance {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             background: #e6f7ff;
             color: #006699;
@@ -268,6 +267,7 @@
             <button class="cat-btn" onclick="filterCat('tech', this)">Электроника</button>
             <button class="cat-btn" onclick="filterCat('auto', this)">Авто</button>
             <button class="cat-btn" onclick="filterCat('clothes', this)">Одежда</button>
+            <button class="cat-btn" onclick="filterCat('home', this)">Дом и Уют</button>
         </div>
     </header>
 
@@ -308,14 +308,35 @@
         let selectedItem = null;
         let inventory = [];
 
-        // База данных объявлений на рынке
+        // Расширенная база данных объявлений (20 товаров)
         const marketItems = [
+            // Электроника
             { id: 1, title: 'iPhone 11 64GB', category: 'tech', price: 12000, realValue: 18000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400', desc: 'Срочно! Экран немного в царапинах, батарея 81%. Работает идеально.' },
             { id: 2, title: 'Игровая приставка PS4 Slim', category: 'tech', price: 9000, realValue: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400', desc: 'Отдам с двумя джойстиками. Шумит, надо почистить от пыли.' },
-            { id: 3, title: 'Кроссовки Nike Air Force 1', category: 'clothes', price: 2000, realValue: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400', desc: 'Оригинал. Немного грязные, стирка решит проблему.' },
-            { id: 4, title: 'Старый ВАЗ 2107 (на ходу)', category: 'auto', price: 35000, realValue: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'На ходу, пороги устали. Музыка есть. Заводится с полтычка.' },
-            { id: 5, title: 'Ноутбук Lenovo i3 / 8GB', category: 'tech', price: 8000, realValue: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400', desc: 'Для учебы и работы. Тормозит HDD, лучше поставить SSD.' },
-            { id: 6, title: 'Кожаная куртка (винтаж)', category: 'clothes', price: 1500, realValue: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', desc: 'Настоящая кожа. Лежала на чердаке.' }
+            { id: 3, title: 'Ноутбук Lenovo i3 / 8GB', category: 'tech', price: 8000, realValue: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400', desc: 'Для учебы и работы. Тормозит HDD, лучше поставить SSD.' },
+            { id: 4, title: 'Видеокарта GTX 1060 6GB', category: 'tech', price: 5000, realValue: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400', desc: 'Стояла в домашнем ПК, не майнилась. Термопасту не менял.' },
+            { id: 5, title: 'Наушники AirPods 2 (оригинал)', category: 'tech', price: 3000, realValue: 6000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400', desc: 'Кейс слегка поцарапан. Аккумулятор держит отлично.' },
+            { id: 6, title: 'Электронная книга Kindle', category: 'tech', price: 2500, realValue: 5000, img: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400', desc: 'Батарея держит месяц. В комплекте чехол.' },
+            { id: 7, title: 'Планшет iPad Air 2', category: 'tech', price: 6500, realValue: 11000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', desc: 'Корпус в идеале, лежал без дела. Забыли пароль от старого iCloud, но сбросить можно.' },
+
+            // Одежда и обувь
+            { id: 8, title: 'Кроссовки Nike Air Force 1', category: 'clothes', price: 2000, realValue: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400', desc: 'Оригинал. Немного грязные, стирка решит проблему.' },
+            { id: 9, title: 'Кожаная куртка (винтаж)', category: 'clothes', price: 1500, realValue: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', desc: 'Настоящая кожа. Лежала на чердаке.' },
+            { id: 10, title: 'Худи Stone Island (копия?)', category: 'clothes', price: 1800, realValue: 5000, img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400', desc: 'Покупал дорого. Патч на месте, продаю потому что мал.' },
+            { id: 11, title: 'Наручные часы Casio G-Shock', category: 'clothes', price: 2200, realValue: 4500, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', desc: 'Водонепроницаемые, нужно только поменять батарейку.' },
+
+            // Авто и запчасти
+            { id: 12, title: 'Старый ВАЗ 2107 (на ходу)', category: 'auto', price: 35000, realValue: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'На ходу, пороги устали. Музыка есть. Заводится с полтычка.' },
+            { id: 13, title: 'Литые диски R16 (4 шт)', category: 'auto', price: 7000, realValue: 13000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=400', desc: 'Ровные, не вареные. Есть бордюрка, под покраску.' },
+            { id: 14, title: 'Сабвуфер 1000W с усилителем', category: 'auto', price: 4500, realValue: 9000, img: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400', desc: 'Качает отлично. Провода в комплекте.' },
+
+            // Дом, бытовая техника и раритет
+            { id: 15, title: 'Кофемашина DeLonghi', category: 'home', price: 4000, realValue: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Капучинатор работает. Требуется почистить от накипи.' },
+            { id: 16, title: 'Пылесос Dyson (не включается)', category: 'home', price: 3000, realValue: 12000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400', desc: 'Перестал заряжаться. Скорее всего умер аккумулятор.' },
+            { id: 17, title: 'Советский виниловый проигрыватель', category: 'home', price: 2000, realValue: 6000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400', desc: 'Находка из гаража. Включается, пластинка крутится.' },
+            { id: 18, title: 'Микроволновка Samsung', category: 'home', price: 1200, realValue: 3000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400', desc: 'Греет отлично, слегка облупилась эмаль внутри.' },
+            { id: 19, title: 'Гитара акустическая Fender', category: 'home', price: 5000, realValue: 9500, img: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400', desc: 'Звучит приятно. Надо поменять струны.' },
+            { id: 20, title: 'Ретро фотоаппарат Зенит-Е', category: 'home', price: 1500, realValue: 4000, img: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400', desc: 'Шел в комплекте с объективом Гелиос 44-2.' }
         ];
 
         // Обновление интерфейса баланса
@@ -387,7 +408,6 @@
                     <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
                 `;
             } else {
-                // Если товар уже у нас, его можно выставлить на продажу
                 actions.innerHTML = `
                     <button class="action-btn" onclick="sellItem()">📢 Выставить на продажу (${item.realValue.toLocaleString()} ₽)</button>
                     <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
@@ -445,11 +465,9 @@
 
         // Продажа товара из инвентаря
         function sellItem() {
-            // Прибыль рассчитывается от реальной стоимости
             const profit = selectedItem.realValue;
             balance += profit;
 
-            // Удаляем из инвентаря
             const index = inventory.findIndex(i => i.id === selectedItem.id);
             if (index > -1) inventory.splice(index, 1);
 
