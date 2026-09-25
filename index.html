@@ -1,702 +1,530 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Барыга Онлайн — Симулятор Авито</title>
-    <style>
-        :root {
-            --primary: #00aaff;
-            --bg: #f2f4f5;
-            --card-bg: #ffffff;
-            --text: #222222;
-            --green: #24b24b;
-            --orange: #ff9f43;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Авито Перекуп Tycoon</title>
+  <style>
+    :root {
+      --primary: #00aaff;
+      --bg: #f4f5f7;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --accent: #ff5252;
+      --success: #2e7d32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 30px; }
+    header { background-color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; sticky: top; top: 0; z-index: 100; }
+    header h1 { font-size: 20px; color: var(--primary); }
+    .stats { display: flex; gap: 15px; align-items: center; font-weight: bold; }
+    .btn-reset { background: var(--accent); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    
+    .nav-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; margin-bottom: 15px; overflow-x: auto; }
+    .tab-btn { padding: 12px 20px; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+    .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 10px; }
+    .news-banner { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; text-align: center; border: 1px solid #ffeeba; }
 
-        /* Шапка сайта */
-        header {
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-sizing: border-box;
-        }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+    .card { background: var(--card-bg); border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
+    .card h3 { font-size: 16px; margin-bottom: 5px; }
+    .card .price { font-size: 18px; font-weight: bold; color: var(--success); margin-bottom: 5px; }
+    .card .meta { font-size: 12px; color: #666; margin-bottom: 10px; }
+    .badge { display: inline-block; padding: 3px 7px; font-size: 11px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; background: #eee; }
+    .badge.defect { background: #ffebee; color: #c62828; }
+    .badge.fake { background: #fff3e0; color: #ef6c00; }
+    .badge.clean { background: #e8f5e9; color: #2e7d32; }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+    button.action-btn { width: 100%; padding: 8px; border: none; background: var(--primary); color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+    button.action-btn:disabled { background: #ccc; cursor: not-allowed; }
+    button.secondary-btn { background: #6c757d; }
+    button.success-btn { background: var(--success); }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--primary);
-        }
+    /* Modal / Overlay */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 450px; width: 90%; }
 
-        .balance-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .balance {
-            font-size: 15px;
-            font-weight: bold;
-            background: #e6f7ff;
-            color: #006699;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-
-        .reset-btn {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Поиск и категории */
-        .search-box {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .search-box:focus {
-            border-color: var(--primary);
-        }
-
-        .categories {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .cat-btn {
-            background: #e8ecef;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .cat-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Навигация (Вкладки) */
-        .tabs {
-            display: flex;
-            width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            border-top: 1px solid #eee;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            color: #777;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        /* Основной контент */
-        main {
-            width: 100%;
-            max-width: 600px;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        /* Сетка объявлений */
-        .feed {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            transition: transform 0.1s;
-            position: relative;
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            background: #eee;
-        }
-
-        .card-info {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .card-title {
-            font-size: 14px;
-            margin: 0 0 6px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-price {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: auto;
-        }
-
-        .card-seller {
-            font-size: 11px;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .badge {
-            position: absolute;
-            top: 6px; right: 6px;
-            background: var(--orange);
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Окно диалога / Торга */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 100;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 600px;
-            border-radius: 16px 16px 0 0;
-            padding: 20px;
-            box-sizing: border-box;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .chat-box {
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 10px;
-            height: 150px;
-            overflow-y: auto;
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .msg {
-            max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-        }
-
-        .msg.seller { background: #e0e0e0; align-self: flex-start; }
-        .msg.player { background: var(--primary); color: white; align-self: flex-end; }
-
-        .action-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--green);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 6px;
-        }
-
-        .action-btn.secondary {
-            background: #00aaff;
-        }
-
-        .action-btn.cancel {
-            background: #ee5253;
-        }
-
-        .action-btn.orange {
-            background: var(--orange);
-        }
-    </style>
+    /* Skills & Shop */
+    .upgrade-item { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  </style>
 </head>
 <body>
 
-    <header>
-        <div class="top-bar">
-            <div class="logo">АвитоБизнес</div>
-            <div class="balance-box">
-                <div class="balance" id="balance">Баланс: 10 000 ₽</div>
-                <button class="reset-btn" onclick="resetGame()">Сброс</button>
-            </div>
-        </div>
-        <input type="text" class="search-box" id="search" placeholder="Поиск по объявлениям..." oninput="renderFeed()">
-        <div class="categories">
-            <button class="cat-btn active" onclick="filterCat('all', this)">Все</button>
-            <button class="cat-btn" onclick="filterCat('tech', this)">Электроника</button>
-            <button class="cat-btn" onclick="filterCat('auto', this)">Авто</button>
-            <button class="cat-btn" onclick="filterCat('clothes', this)">Одежда</button>
-            <button class="cat-btn" onclick="filterCat('home', this)">Дом и Уют</button>
-        </div>
-    </header>
+  <header>
+    <h1>💼 Перекуп Tycoon</h1>
+    <div class="stats">
+      <span>💰 <span id="balance">15000</span> ₽</span>
+      <span>📦 <span id="inventory-count">0</span>/<span id="max-capacity">5</span></span>
+      <button class="btn-reset" onclick="resetGame()">Сброс</button>
+    </div>
+  </header>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('market', this)">Рынок (<span id="market-count">0</span>)</button>
-        <button class="tab-btn" onclick="switchTab('inventory', this)">Мои объявления (<span id="inv-count">0</span>)</button>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('market')">🛒 Рынок</button>
+    <button class="tab-btn" onclick="switchTab('inventory')">🎒 Склад / Инвентарь</button>
+    <button class="tab-btn" onclick="switchTab('skills')">⚡ Навыки</button>
+    <button class="tab-btn" onclick="switchTab('business')">🏬 Бизнес и Персонал</button>
+  </div>
+
+  <div class="container">
+    <div class="news-banner" id="news-banner">📢 Новость: На рынке стабильность. Спрос стандартный.</div>
+
+    <!-- Рынок -->
+    <div id="tab-market" class="tab-content">
+      <div class="grid" id="market-list"></div>
     </div>
 
-    <main>
-        <div id="feed" class="feed"></div>
-    </main>
-
-    <!-- Модальное окно -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3 id="modal-title" style="margin-top:0;">Название</h3>
-            <img id="modal-img" src="" style="width:100%; height:180px; object-fit:cover; border-radius:8px;">
-            <p id="modal-desc" style="color:#666; font-size:14px;"></p>
-            <div class="card-price" id="modal-price">0 ₽</div>
-
-            <div class="chat-box" id="chat"></div>
-
-            <div id="modal-actions"></div>
-        </div>
+    <!-- Инвентарь -->
+    <div id="tab-inventory" class="tab-content" style="display:none;">
+      <div class="grid" id="inventory-list"></div>
     </div>
 
-    <script>
-        // Шаблоны для генерации 100+ товаров
-        const itemTemplates = {
-            tech: [
-                { title: 'iPhone 11 64GB', basePrice: 15000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400' },
-                { title: 'iPhone 12 Pro 128GB', basePrice: 32000, img: 'https://images.unsplash.com/photo-1603891128711-11b4b0320d5d?w=400' },
-                { title: 'Игровая приставка PS4 Slim', basePrice: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400' },
-                { title: 'PlayStation 5 Digital', basePrice: 42000, img: 'https://images.unsplash.com/photo-1606813900088-3482a20a4d53?w=400' },
-                { title: 'Ноутбук Lenovo i3 / 8GB', basePrice: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400' },
-                { title: 'MacBook Air M1 256GB', basePrice: 55000, img: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400' },
-                { title: 'Видеокарта GTX 1060 6GB', basePrice: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' },
-                { title: 'Видеокарта RTX 3060 12GB', basePrice: 24000, img: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400' },
-                { title: 'Наушники AirPods 2', basePrice: 6000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400' },
-                { title: 'Планшет iPad Air 2', basePrice: 11000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400' }
-            ],
-            clothes: [
-                { title: 'Кроссовки Nike Air Force 1', basePrice: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400' },
-                { title: 'Кроссовки Adidas Forum Low', basePrice: 5200, img: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400' },
-                { title: 'Кожаная куртка (винтаж)', basePrice: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400' },
-                { title: 'Худи Stone Island', basePrice: 6000, img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400' },
-                { title: 'Наручные часы Casio G-Shock', basePrice: 4500, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400' },
-                { title: 'Джинсы Levi’s 501', basePrice: 3000, img: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400' }
-            ],
-            auto: [
-                { title: 'Старый ВАЗ 2107 (на ходу)', basePrice: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400' },
-                { title: 'ВАЗ 2114 (2008 год)', basePrice: 90000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400' },
-                { title: 'Литые диски R16 (4 шт)', basePrice: 13000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=400' },
-                { title: 'Сабвуфер 1000W с усилителем', basePrice: 9000, img: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400' },
-                { title: 'Автомагнитола 2-DIN Android', basePrice: 7000, img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400' }
-            ],
-            home: [
-                { title: 'Кофемашина DeLonghi', basePrice: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400' },
-                { title: 'Пылесос Dyson', basePrice: 12000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400' },
-                { title: 'Виниловый проигрыватель', basePrice: 6000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400' },
-                { title: 'Микроволновка Samsung', basePrice: 3000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400' },
-                { title: 'Гитара акустическая Fender', basePrice: 9500, img: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400' },
-                { title: 'Ретро фотоаппарат Зенит-Е', basePrice: 4000, img: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400' }
-            ]
-        };
+    <!-- Навыки -->
+    <div id="tab-skills" class="tab-content" style="display:none;">
+      <h2>Улучшение навыков</h2>
+      <br>
+      <div id="skills-list"></div>
+    </div>
 
-        const descriptions = [
-            "Срочно нужны деньги! Работает отлично.",
-            "Лежит без дела. Состояние хорошего б/у.",
-            "Есть небольшие дефекты, на работу не влияют.",
-            "Покупал новым, использовал редко.",
-            "Полный комплект, чек остался.",
-            "Требуется небольшая чистка/настройка.",
-            "Отдам самовывозом. Без обмена!"
-        ];
+    <!-- Бизнес -->
+    <div id="tab-business" class="tab-content" style="display:none;">
+      <h2>Развитие бизнеса</h2>
+      <br>
+      <h3>Складские помещения</h3>
+      <div id="warehouse-upgrades"></div>
+      <br>
+      <h3>Персонал</h3>
+      <div id="staff-upgrades"></div>
+    </div>
+  </div>
 
-        const buyerPhrases = [
-            { text: "Здравствуйте! Заберу прямо сейчас за {price} ₽, устраивает?", discount: 0.85 },
-            { text: "Приветствую! Готов купить за {price} ₽, больше нет.", discount: 0.80 },
-            { text: "Добрый день! Если отдадите за {price} ₽ — приеду через 20 минут!", discount: 0.90 },
-            { text: "Здравствуйте, заберу без проверок по вашей цене ({price} ₽)!", discount: 1.0 }
-        ];
+  <!-- Модалка Тога / Покупателя -->
+  <div class="modal" id="chat-modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Входящее предложение</h3>
+      <br>
+      <p id="modal-text">Покупатель предлагает цену...</p>
+      <br>
+      <button class="action-btn success-btn" id="modal-accept">Согласиться</button>
+      <button class="action-btn secondary-btn" style="margin-top:5px;" onclick="closeModal()">Отклонить</button>
+    </div>
+  </div>
 
-        // Переменные состояния
-        let balance = 10000;
-        let currentCat = 'all';
-        let currentTab = 'market';
-        let selectedItem = null;
-        let inventory = [];
-        let marketItems = [];
+  <script>
+    // --- ДАННЫЕ И СОСТОЯНИЕ ---
+    let state = {
+      balance: 15000,
+      capacity: 5,
+      bannedUntil: 0,
+      skills: {
+        charisma: 0,   // Торг при покупке
+        analytics: 0,  // Видимость рыночной цены
+        repair: 0      // Скидка на ремонт
+      },
+      staff: {
+        buyer: false,  // Скупщик
+        seller: false  // Менеджер
+      },
+      inventory: [],
+      market: []
+    };
 
-        function generate100Items() {
-            const list = [];
-            const categories = Object.keys(itemTemplates);
+    const categories = ['Электроника', 'Одежда', 'Авто', 'Антиквариат'];
+    const itemTemplates = [
+      { name: 'iPhone 11', cat: 'Электроника', basePrice: 18000, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300' },
+      { name: 'Видеокарта GTX 1060', cat: 'Электроника', basePrice: 7000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=300' },
+      { name: 'Кроссовки Nike Air', cat: 'Одежда', basePrice: 6000, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300', canBeFake: true },
+      { name: 'Часы Rolex Submariner', cat: 'Антиквариат', basePrice: 25000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300', canBeFake: true },
+      { name: 'ВАЗ 2107 б/у', cat: 'Авто', basePrice: 45000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300' },
+      { name: 'Виниловый проигрыватель', cat: 'Антиквариат', basePrice: 8000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=300' }
+    ];
 
-            for (let i = 1; i <= 100; i++) {
-                const cat = categories[Math.floor(Math.random() * categories.length)];
-                const templates = itemTemplates[cat];
-                const template = templates[Math.floor(Math.random() * templates.length)];
-                
-                const discount = 0.5 + Math.random() * 0.3;
-                const realValue = template.basePrice;
-                const price = Math.round((realValue * discount) / 100) * 100;
+    // --- СОХРАНЕНИЕ / ЗАГРУЗКА ---
+    function saveGame() {
+      localStorage.setItem('avito_tycoon_save', JSON.stringify(state));
+    }
 
-                list.push({
-                    id: i,
-                    title: template.title,
-                    category: cat,
-                    price: price,
-                    realValue: realValue,
-                    img: template.img,
-                    desc: descriptions[Math.floor(Math.random() * descriptions.length)],
-                    bargainRefused: false // Флаг: отказывал ли продавец в торгах
-                });
-            }
-            return list;
-        }
+    function loadGame() {
+      const saved = localStorage.getItem('avito_tycoon_save');
+      if (saved) {
+        state = JSON.parse(saved);
+      } else {
+        generateMarket();
+      }
+      render();
+    }
 
-        function saveGame() {
-            localStorage.setItem('avito_balance', balance);
-            localStorage.setItem('avito_inventory', JSON.stringify(inventory));
-            localStorage.setItem('avito_marketItems', JSON.stringify(marketItems));
-        }
+    function resetGame() {
+      if (confirm('Сбросить весь прогресс?')) {
+        localStorage.removeItem('avito_tycoon_save');
+        location.reload();
+      }
+    }
 
-        function loadGame() {
-            const savedBalance = localStorage.getItem('avito_balance');
-            const savedInventory = localStorage.getItem('avito_inventory');
-            const savedMarket = localStorage.getItem('avito_marketItems');
+    // --- ВЫРАБОТКА РЫНКА ---
+    function generateMarket() {
+      state.market = [];
+      for (let i = 0; i < 12; i++) {
+        const tpl = itemTemplates[Math.floor(Math.random() * itemTemplates.length)];
+        const isDefective = Math.random() < 0.35;
+        const isFake = tpl.canBeFake ? Math.random() < 0.4 : false;
+        const isDelivery = Math.random() < 0.3;
 
-            if (savedBalance !== null) balance = parseInt(savedBalance);
-            if (savedInventory !== null) inventory = JSON.parse(savedInventory);
-            
-            if (savedMarket !== null) {
-                marketItems = JSON.parse(savedMarket);
-            } else {
-                marketItems = generate100Items();
-            }
-        }
+        let buyPrice = Math.round(tpl.basePrice * (0.6 + Math.random() * 0.3));
+        if (isDefective) buyPrice = Math.round(buyPrice * 0.6);
 
-        function resetGame() {
-            if (confirm('Вы уверены, что хотите сбросить весь прогресс и заново сгенерировать 100 товаров?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('balance').innerText = `Баланс: ${balance.toLocaleString()} ₽`;
-            document.getElementById('inv-count').innerText = inventory.length;
-            document.getElementById('market-count').innerText = marketItems.length;
-        }
-
-        function renderFeed() {
-            const feed = document.getElementById('feed');
-            const searchVal = document.getElementById('search').value.toLowerCase();
-            feed.innerHTML = '';
-
-            let itemsToRender = (currentTab === 'market') ? marketItems : inventory;
-
-            itemsToRender.forEach(item => {
-                if (currentCat !== 'all' && item.category !== currentCat) return;
-                if (searchVal && !item.title.toLowerCase().includes(searchVal)) return;
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => openModal(item);
-
-                let badgeHTML = '';
-                if (currentTab === 'inventory') {
-                    if (item.pendingOffer) {
-                        badgeHTML = `<div class="badge">💬 Есть предложение!</div>`;
-                    } else if (item.isListed) {
-                        badgeHTML = `<div class="badge" style="background:#888;">⏳ Ждет покупателя...</div>`;
-                    } else {
-                        badgeHTML = `<div class="badge" style="background:#70a1ff;">📦 На складе</div>`;
-                    }
-                }
-
-                card.innerHTML = `
-                    ${badgeHTML}
-                    <img src="${item.img}" alt="${item.title}">
-                    <div class="card-info">
-                        <div class="card-title">${item.title}</div>
-                        <div class="card-price">${(item.mySellingPrice || item.price).toLocaleString()} ₽</div>
-                        <div class="card-seller">${currentTab === 'market' ? 'Частное лицо' : 'Ваше объявление'}</div>
-                    </div>
-                `;
-                feed.appendChild(card);
-            });
-        }
-
-        function filterCat(cat, btn) {
-            currentCat = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderFeed();
-        }
-
-        function switchTab(tab, btn) {
-            currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderFeed();
-        }
-
-        function openModal(item) {
-            selectedItem = item;
-            document.getElementById('modal-title').innerText = item.title;
-            document.getElementById('modal-img').src = item.img;
-            document.getElementById('modal-desc').innerText = item.desc;
-            
-            const actions = document.getElementById('modal-actions');
-            const chat = document.getElementById('chat');
-
-            if (currentTab === 'market') {
-                document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽ (Рыночная: ~${item.realValue.toLocaleString()} ₽)`;
-                
-                if (item.bargainRefused) {
-                    chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно. Без торга!</div>';
-                } else {
-                    chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
-                }
-
-                // Показываем кнопку торга только если продавец НЕ отказывал в скидке ранее
-                const bargainBtnHTML = item.bargainRefused 
-                    ? '' 
-                    : `<button id="bargain-btn" class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>`;
-
-                actions.innerHTML = `
-                    ${bargainBtnHTML}
-                    <button class="action-btn" onclick="buyItem()">🛒 Купить прямо сейчас</button>
-                    <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-                `;
-            } else {
-                document.getElementById('modal-price').innerText = `Ваша цена: ${item.mySellingPrice.toLocaleString()} ₽`;
-
-                if (!item.isListed) {
-                    chat.innerHTML = '<div class="msg seller">Товар у вас на складе. Выставьте его на продажу!</div>';
-                    actions.innerHTML = `
-                        <button class="action-btn" onclick="startSelling()">📢 Выставить на продажу (${item.realValue.toLocaleString()} ₽)</button>
-                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-                    `;
-                } else if (item.pendingOffer) {
-                    const offer = item.pendingOffer;
-                    chat.innerHTML = `<div class="msg seller">${offer.text}</div>`;
-                    actions.innerHTML = `
-                        <button class="action-btn" onclick="acceptOffer()">✅ Продать за ${offer.offeredPrice.toLocaleString()} ₽</button>
-                        <button class="action-btn orange" onclick="declineOffer()">❌ Отклонить (Ждать другого)</button>
-                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-                    `;
-                } else {
-                    chat.innerHTML = '<div class="msg seller">Объявление опубликовано. Покупатели смотрят ваше объявление...</div>';
-                    actions.innerHTML = `
-                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-                    `;
-                }
-            }
-
-            document.getElementById('modal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function bargain() {
-            const chat = document.getElementById('chat');
-            chat.innerHTML += `<div class="msg player">Скинете цену? Заберу быстрей!</div>`;
-            
-            if (Math.random() > 0.4) {
-                // Успешный торг: скидываем цену
-                const newPrice = Math.round(selectedItem.price * 0.85);
-                selectedItem.price = newPrice;
-                document.getElementById('modal-price').innerText = `${newPrice.toLocaleString()} ₽ (Рыночная: ~${selectedItem.realValue.toLocaleString()} ₽)`;
-                saveGame();
-                renderFeed();
-                setTimeout(() => {
-                    chat.innerHTML += `<div class="msg seller">Ладно, отдам за ${newPrice.toLocaleString()} ₽!</div>`;
-                    chat.scrollTop = chat.scrollHeight;
-                }, 400);
-            } else {
-                // Продавец отказывается: запоминаем отказ и убираем кнопку торга
-                selectedItem.bargainRefused = true;
-                saveGame();
-                
-                const bargainBtn = document.getElementById('bargain-btn');
-                if (bargainBtn) {
-                    bargainBtn.remove(); // Удаляем кнопку с экрана
-                }
-
-                setTimeout(() => {
-                    chat.innerHTML += `<div class="msg seller">Нет, без торга!</div>`;
-                    chat.scrollTop = chat.scrollHeight;
-                }, 400);
-            }
-        }
-
-        function buyItem() {
-            if (balance < selectedItem.price) {
-                alert('У вас недостаточно денег!');
-                return;
-            }
-
-            balance -= selectedItem.price;
-            selectedItem.mySellingPrice = selectedItem.realValue;
-            selectedItem.isListed = false;
-            selectedItem.pendingOffer = null;
-            
-            inventory.push(selectedItem);
-            
-            const index = marketItems.findIndex(i => i.id === selectedItem.id);
-            if (index > -1) marketItems.splice(index, 1);
-
-            saveGame();
-            updateUI();
-            closeModal();
-            renderFeed();
-            alert('Товар куплен! Перейдите во вкладку "Мои объявления", чтобы выставить его на продажу.');
-        }
-
-        function startSelling() {
-            selectedItem.isListed = true;
-            saveGame();
-            closeModal();
-            renderFeed();
-
-            scheduleOffer(selectedItem);
-        }
-
-        function scheduleOffer(item) {
-            const waitTime = Math.floor(Math.random() * 4000) + 3000;
-            setTimeout(() => {
-                const exists = inventory.find(i => i.id === item.id);
-                if (exists && exists.isListed && !exists.pendingOffer) {
-                    generateBuyerOffer(exists);
-                }
-            }, waitTime);
-        }
-
-        function generateBuyerOffer(item) {
-            const template = buyerPhrases[Math.floor(Math.random() * buyerPhrases.length)];
-            const offeredPrice = Math.round(item.mySellingPrice * template.discount);
-            
-            item.pendingOffer = {
-                text: template.text.replace('{price}', offeredPrice.toLocaleString()),
-                offeredPrice: offeredPrice
-            };
-
-            saveGame();
-            renderFeed();
-        }
-
-        function acceptOffer() {
-            const finalPrice = selectedItem.pendingOffer.offeredPrice;
-            balance += finalPrice;
-
-            const index = inventory.findIndex(i => i.id === selectedItem.id);
-            if (index > -1) inventory.splice(index, 1);
-
-            saveGame();
-            updateUI();
-            closeModal();
-            renderFeed();
-            alert(`Ура! Вы продали товар за ${finalPrice.toLocaleString()} ₽!`);
-        }
-
-        function declineOffer() {
-            selectedItem.pendingOffer = null;
-            saveGame();
-            closeModal();
-            renderFeed();
-
-            scheduleOffer(selectedItem);
-        }
-
-        loadGame();
-        updateUI();
-        renderFeed();
-
-        inventory.forEach(item => {
-            if (item.isListed && !item.pendingOffer) {
-                scheduleOffer(item);
-            }
+        state.market.push({
+          id: Date.now() + Math.random(),
+          name: tpl.name,
+          category: tpl.cat,
+          buyPrice: buyPrice,
+          marketValue: tpl.basePrice,
+          img: tpl.img,
+          isDefective: isDefective,
+          isFake: isFake,
+          authenticated: false,
+          isDelivery: isDelivery,
+          deliveryTime: isDelivery ? 8 : 0
         });
-    </script>
+      }
+    }
+
+    // --- РЕНДЕРИНГ ИНТЕРФЕЙСА ---
+    function render() {
+      document.getElementById('balance').innerText = state.balance.toLocaleString();
+      document.getElementById('inventory-count').innerText = state.inventory.length;
+      document.getElementById('max-capacity').innerText = state.capacity;
+
+      renderMarket();
+      renderInventory();
+      renderSkills();
+      renderBusiness();
+    }
+
+    function renderMarket() {
+      const list = document.getElementById('market-list');
+      list.innerHTML = '';
+
+      state.market.forEach(item => {
+        const discountBonus = state.skills.charisma * 0.05;
+        const finalPrice = Math.round(item.buyPrice * (1 - discountBonus));
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${item.img}">
+          <h3>${item.name}</h3>
+          <div class="price">${finalPrice.toLocaleString()} ₽</div>
+          ${state.skills.analytics > 0 ? `<div class="meta">Рыночная цена: ~${item.marketValue} ₽</div>` : ''}
+          <div>
+            ${item.isDefective ? '<span class="badge defect">🛠 Нужен ремонт</span>' : ''}
+            ${item.isDelivery ? '<span class="badge">🚚 Доставка (8с)</span>' : ''}
+          </div>
+          <button class="action-btn" onclick="buyItem(${item.id})">Купить</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function renderInventory() {
+      const list = document.getElementById('inventory-list');
+      list.innerHTML = '';
+
+      state.inventory.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        let statusText = item.inDelivery ? `🚚 В пути (${item.deliveryTime}s)` : (item.onSale ? '💬 В продаже...' : '📦 На складе');
+        
+        card.innerHTML = `
+          <img src="${item.img}">
+          <h3>${item.name}</h3>
+          <div class="price">Куплено за: ${item.buyPrice.toLocaleString()} ₽</div>
+          <div class="meta">Статус: ${statusText}</div>
+          <div>
+            ${item.isCleaned ? '<span class="badge clean">✨ Чистый</span>' : ''}
+            ${item.isDefective ? '<span class="badge defect">🛠 Разбит</span>' : ''}
+            ${item.authenticated ? `<span class="badge">${item.isFake ? '❌ Подделка' : '✅ Оригинал'}</span>` : ''}
+          </div>
+          <br>
+          ${!item.inDelivery && !item.onSale ? `
+            ${item.isDefective ? `<button class="action-btn secondary-btn" onclick="repairItem(${item.id})">Ремонт (-${Math.round(2000 * (1 - state.skills.repair * 0.1))}₽)</button>` : ''}
+            ${!item.isCleaned ? `<button class="action-btn secondary-btn" onclick="cleanItem(${item.id})">Почистить (Бесплатно)</button>` : ''}
+            ${!item.authenticated ? `<button class="action-btn secondary-btn" onclick="authenticateItem(${item.id})">Экспертиза (-500₽)</button>` : ''}
+            <button class="action-btn success-btn" onclick="putOnSale(${item.id})">Выставить на продажу</button>
+          ` : ''}
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function renderSkills() {
+      const list = document.getElementById('skills-list');
+      list.innerHTML = `
+        <div class="upgrade-item">
+          <div>
+            <strong>🗣 Харизма (Ур. ${state.skills.charisma}/5)</strong>
+            <p>Скидка на покупку товаров: -${state.skills.charisma * 5}%</p>
+          </div>
+          <button class="action-btn" ${state.skills.charisma >= 5 ? 'disabled' : ''} onclick="upgradeSkill('charisma', ${ (state.skills.charisma + 1) * 5000 })">
+            ${state.skills.charisma >= 5 ? 'MAX' : 'Улучшить (' + ((state.skills.charisma + 1) * 5000) + '₽)'}
+          </button>
+        </div>
+        <div class="upgrade-item">
+          <div>
+            <strong>📊 Аналитика рынка (Ур. ${state.skills.analytics}/1)</strong>
+            <p>Показывает реальную рыночную стоимость товаров</p>
+          </div>
+          <button class="action-btn" ${state.skills.analytics >= 1 ? 'disabled' : ''} onclick="upgradeSkill('analytics', 3000)">
+            ${state.skills.analytics >= 1 ? 'Изучено' : 'Изучить (3000₽)'}
+          </button>
+        </div>
+        <div class="upgrade-item">
+          <div>
+            <strong>🔧 Быстрый мастер (Ур. ${state.skills.repair}/5)</strong>
+            <p>Скидка на стоимость ремонта: -${state.skills.repair * 10}%</p>
+          </div>
+          <button class="action-btn" ${state.skills.repair >= 5 ? 'disabled' : ''} onclick="upgradeSkill('repair', ${ (state.skills.repair + 1) * 4000 })">
+            ${state.skills.repair >= 5 ? 'MAX' : 'Улучшить (' + ((state.skills.repair + 1) * 4000) + '₽)'}
+          </button>
+        </div>
+      `;
+    }
+
+    function renderBusiness() {
+      document.getElementById('warehouse-upgrades').innerHTML = `
+        <div class="upgrade-item">
+          <div>
+            <strong>📦 Вместимость склада (${state.capacity} слотов)</strong>
+            <p>Расширить склад на +5 слотов</p>
+          </div>
+          <button class="action-btn" onclick="expandWarehouse()">Расширить (10 000 ₽)</button>
+        </div>
+      `;
+
+      document.getElementById('staff-upgrades').innerHTML = `
+        <div class="upgrade-item">
+          <div>
+            <strong>🤖 Менеджер продаж</strong>
+            <p>Автоматически принимает выгодные предложения от покупателей</p>
+          </div>
+          <button class="action-btn" ${state.staff.seller ? 'disabled' : ''} onclick="hireStaff('seller', 25000)">
+            ${state.staff.seller ? 'Нанят' : 'Нанять (25 000 ₽)'}
+          </button>
+        </div>
+      `;
+    }
+
+    // --- ЛОГИКА ИГРЫ ---
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).style.display = 'block';
+    }
+
+    function buyItem(id) {
+      if (Date.now() < state.bannedUntil) {
+        alert('ВАШ АККАУНТ ЗАБЛОКИРОВАН ЗА ПРОДАЖУ ПОДДЕЛОК! Подождите.');
+        return;
+      }
+      if (state.inventory.length >= state.capacity) {
+        alert('Склад заполнен! Улучшите склад в вкладке "Бизнес".');
+        return;
+      }
+      const idx = state.market.findIndex(i => i.id === id);
+      const item = state.market[idx];
+      const discount = state.skills.charisma * 0.05;
+      const cost = Math.round(item.buyPrice * (1 - discount));
+
+      if (state.balance < cost) {
+        alert('Недостаточно денег!');
+        return;
+      }
+
+      state.balance -= cost;
+      state.market.splice(idx, 1);
+
+      const invItem = {
+        ...item,
+        buyPrice: cost,
+        inDelivery: item.isDelivery,
+        onSale: false,
+        isCleaned: false
+      };
+
+      state.inventory.push(invItem);
+      saveGame();
+      render();
+    }
+
+    function cleanItem(id) {
+      const item = state.inventory.find(i => i.id === id);
+      if (item) {
+        item.isCleaned = true;
+        item.marketValue = Math.round(item.marketValue * 1.1);
+        saveGame();
+        render();
+      }
+    }
+
+    function repairItem(id) {
+      const cost = Math.round(2000 * (1 - state.skills.repair * 0.1));
+      if (state.balance < cost) return alert('Недостаточно денег на ремонт!');
+      
+      const item = state.inventory.find(i => i.id === id);
+      if (item) {
+        state.balance -= cost;
+        item.isDefective = false;
+        item.marketValue = Math.round(item.marketValue * 1.4);
+        saveGame();
+        render();
+      }
+    }
+
+    function authenticateItem(id) {
+      if (state.balance < 500) return alert('Нужно 500 ₽ на экспертизу!');
+      const item = state.inventory.find(i => i.id === id);
+      if (item) {
+        state.balance -= 500;
+        item.authenticated = true;
+        saveGame();
+        render();
+      }
+    }
+
+    function putOnSale(id) {
+      const item = state.inventory.find(i => i.id === id);
+      if (item) {
+        item.onSale = true;
+        saveGame();
+        render();
+        
+        // Таймер ожидания покупателя
+        setTimeout(() => triggerCustomerOffer(item.id), 3000 + Math.random() * 4000);
+      }
+    }
+
+    function triggerCustomerOffer(itemId) {
+      const item = state.inventory.find(i => i.id === itemId);
+      if (!item || !item.onSale) return;
+
+      // Шанс странного предложения (картошка/неадекват)
+      if (Math.random() < 0.2) {
+        showModal("Странный покупатель", "Здравствуйте! Обмен на 2 мешка картошки и бензопилу интересует?", () => {
+          alert("Вы отказались от предложения.");
+          item.onSale = false;
+          render();
+        });
+        return;
+      }
+
+      let offerPrice = Math.round(item.marketValue * (0.9 + Math.random() * 0.3));
+
+      // Если бот-менеджер
+      if (state.staff.seller && offerPrice >= item.buyPrice * 1.1) {
+        completeSale(item, offerPrice);
+        return;
+      }
+
+      showModal(
+        "💬 Новое предложение!",
+        `Покупатель хочет купить "${item.name}" за ${offerPrice.toLocaleString()} ₽. Продать?`,
+        () => completeSale(item, offerPrice)
+      );
+    }
+
+    function completeSale(item, price) {
+      closeModal();
+      // Проверка на подделку
+      if (item.isFake) {
+        alert("🚨 ПОКУПАТЕЛЬ ОБНАРУЖИЛ ПОДДЕЛКУ! Ваш аккаунт заблокирован на 30 сек., вы уплатили штраф 5000 ₽.");
+        state.balance = Math.max(0, state.balance - 5000);
+        state.bannedUntil = Date.now() + 30000;
+      } else {
+        state.balance += price;
+        alert(` Успешно продано за ${price.toLocaleString()} ₽!`);
+      }
+
+      state.inventory = state.inventory.filter(i => i.id !== item.id);
+      saveGame();
+      render();
+    }
+
+    function showModal(title, text, onAccept) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-text').innerText = text;
+      document.getElementById('chat-modal').classList.add('active');
+      
+      const acceptBtn = document.getElementById('modal-accept');
+      acceptBtn.onclick = onAccept;
+    }
+
+    function closeModal() {
+      document.getElementById('chat-modal').classList.remove('active');
+    }
+
+    function upgradeSkill(skill, price) {
+      if (state.balance >= price) {
+        state.balance -= price;
+        state.skills[skill]++;
+        saveGame();
+        render();
+      } else {
+        alert('Недостаточно денег!');
+      }
+    }
+
+    function expandWarehouse() {
+      if (state.balance >= 10000) {
+        state.balance -= 10000;
+        state.capacity += 5;
+        saveGame();
+        render();
+      } else alert('Недостаточно денег!');
+    }
+
+    function hireStaff(type, price) {
+      if (state.balance >= price) {
+        state.balance -= price;
+        state.staff[type] = true;
+        saveGame();
+        render();
+      } else alert('Недостаточно денег!');
+    }
+
+    // --- ТАЙМЕРЫ И ИВЕНТЫ ---
+    setInterval(() => {
+      // Обновление логистики
+      let changed = false;
+      state.inventory.forEach(item => {
+        if (item.inDelivery) {
+          item.deliveryTime--;
+          if (item.deliveryTime <= 0) {
+            item.inDelivery = false;
+            changed = true;
+          }
+        }
+      });
+
+      // Пополнение рынка если мало товаров
+      if (state.market.length < 5) {
+        generateMarket();
+        changed = true;
+      }
+
+      if (changed) {
+        saveGame();
+        render();
+      }
+    }, 1000);
+
+    // Старт
+    loadGame();
+  </script>
 </body>
 </html>
