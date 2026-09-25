@@ -116,6 +116,8 @@
       <button class="cat-btn" onclick="filterCategory('Авто', this)">Авто</button>
       <button class="cat-btn" onclick="filterCategory('Одежда', this)">Одежда</button>
       <button class="cat-btn" onclick="filterCategory('Дом и Уют', this)">Дом и Уют</button>
+      <button class="cat-btn" onclick="filterCategory('Спорт и отдых', this)">Спорт</button>
+      <button class="cat-btn" onclick="filterCategory('Детские товары', this)">Детские</button>
     </div>
 
     <div class="bottom-nav">
@@ -136,7 +138,7 @@
       <div class="price-row">
         <div class="price-main">
           <span id="m-price">0</span> ₽ 
-          <span class="price-market" id="m-market-wrap">(Рыночная: ~<span id="m-market">0</span> ₽)</span>
+          <span class="price-market" id="m-market-wrap">(Рыночная: \~<span id="m-market">0</span> ₽)</span>
         </div>
       </div>
 
@@ -148,40 +150,145 @@
   <script>
     const templates = {
       'Электроника': [
-        { title: 'iPhone 11 64GB', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500' },
-        { title: 'iPhone 13 Pro', minP: 35000, maxP: 50000, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500' },
-        { title: 'PlayStation 4 Slim', minP: 10000, maxP: 16000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500' },
-        { title: 'PlayStation 5', minP: 30000, maxP: 42000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500' },
-        { title: 'AirPods Pro 2', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500' },
-        { title: 'Ноутбук ASUS i5', minP: 15000, maxP: 25000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500' },
-        { title: 'MacBook Air M1', minP: 40000, maxP: 60000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500' },
-        { title: 'Видеокарта RTX 3060', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500' }
+        { title: 'iPhone 11 64GB', minP: 12000, maxP: 18500, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500' },
+        { title: 'iPhone 12 128GB', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500' },
+        { title: 'iPhone 13 Pro 256GB', minP: 38000, maxP: 52000, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500' },
+        { title: 'iPhone 14 128GB', minP: 42000, maxP: 58000, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500' },
+        { title: 'Samsung Galaxy S21', minP: 16000, maxP: 24000, img: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500' },
+        { title: 'Samsung Galaxy S23 Ultra', minP: 45000, maxP: 65000, img: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500' },
+        { title: 'Xiaomi Redmi Note 12', minP: 8000, maxP: 13000, img: 'https://images.unsplash.com/photo-1592899677977-9c10ca936efb?w=500' },
+        { title: 'PlayStation 4 Slim 1TB', minP: 11000, maxP: 16500, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500' },
+        { title: 'PlayStation 5 Disc', minP: 32000, maxP: 43000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500' },
+        { title: 'Xbox Series S', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=500' },
+        { title: 'Nintendo Switch OLED', minP: 22000, maxP: 30000, img: 'https://images.unsplash.com/photo-1578303517467-58e83e07e092?w=500' },
+        { title: 'AirPods Pro 2', minP: 9000, maxP: 14500, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500' },
+        { title: 'AirPods 3', minP: 7000, maxP: 11000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500' },
+        { title: 'Sony WH-1000XM4', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500' },
+        { title: 'Ноутбук ASUS VivoBook i5', minP: 22000, maxP: 32000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500' },
+        { title: 'Ноутбук Lenovo IdeaPad 3', minP: 18000, maxP: 27000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500' },
+        { title: 'MacBook Air M1 256GB', minP: 48000, maxP: 62000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500' },
+        { title: 'MacBook Pro 13 M2', minP: 75000, maxP: 95000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500' },
+        { title: 'Видеокарта RTX 3060 12GB', minP: 22000, maxP: 30000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500' },
+        { title: 'Видеокарта RTX 4060', minP: 28000, maxP: 38000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500' },
+        { title: 'Монитор 27" 144Hz', minP: 12000, maxP: 19000, img: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500' },
+        { title: 'Клавиатура механическая Keychron', minP: 4500, maxP: 8000, img: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500' },
+        { title: 'Мышь Logitech G Pro X', minP: 3500, maxP: 6500, img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500' },
+        { title: 'Планшет iPad 9 64GB', minP: 18000, maxP: 25000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500' },
+        { title: 'Планшет Samsung Tab S8', minP: 25000, maxP: 38000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500' },
+        { title: 'Фотоаппарат Canon EOS 2000D', minP: 22000, maxP: 32000, img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500' },
+        { title: 'Экшн-камера GoPro Hero 10', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500' },
+        { title: 'Умные часы Apple Watch SE', minP: 14000, maxP: 21000, img: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=500' },
+        { title: 'Умные часы Xiaomi Watch S1', minP: 6000, maxP: 10000, img: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=500' },
+        { title: 'Роутер TP-Link AX3000', minP: 3500, maxP: 6000, img: 'https://images.unsplash.com/photo-1606904820916-8d1c0b0b0b0b?w=500' }
       ],
       'Авто': [
-        { title: 'ВАЗ 2114 (2008)', minP: 50000, maxP: 90000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
-        { title: 'Лада Приора (2012)', minP: 110000, maxP: 180000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
-        { title: 'ВАЗ 2107 (2006)', minP: 30000, maxP: 60000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
-        { title: 'Комплект колес R16', minP: 8000, maxP: 15000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=500' },
-        { title: 'Автомагнитола 2DIN', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' }
+        { title: 'ВАЗ 2114 (2008) 1.6', minP: 55000, maxP: 95000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
+        { title: 'Лада Приора (2012) хэтчбек', minP: 120000, maxP: 185000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
+        { title: 'ВАЗ 2107 (2006)', minP: 32000, maxP: 62000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
+        { title: 'Лада Гранта (2018)', minP: 380000, maxP: 520000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
+        { title: 'Renault Logan (2015)', minP: 320000, maxP: 450000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
+        { title: 'Hyundai Solaris (2017)', minP: 550000, maxP: 720000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
+        { title: 'Kia Rio (2019)', minP: 680000, maxP: 850000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
+        { title: 'Volkswagen Polo (2016)', minP: 480000, maxP: 620000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
+        { title: 'Комплект колёс R16 лето', minP: 9000, maxP: 16000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=500' },
+        { title: 'Комплект колёс R15 зима', minP: 11000, maxP: 18000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=500' },
+        { title: 'Автомагнитола 2DIN Android', minP: 4500, maxP: 8500, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
+        { title: 'Видеорегистратор Xiaomi 70mai', minP: 3500, maxP: 6500, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500' },
+        { title: 'Автомобильный компрессор', minP: 1500, maxP: 3500, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
+        { title: 'Чехлы на сиденья универсальные', minP: 2500, maxP: 5500, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
+        { title: 'Аккумулятор 60Ah', minP: 4000, maxP: 7000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
+        { title: 'Щётки стеклоочистителя Bosch', minP: 800, maxP: 1800, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
+        { title: 'Домкрат гидравлический 2т', minP: 1800, maxP: 3500, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' }
       ],
       'Одежда': [
-        { title: 'Nike Air Force 1', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500' },
-        { title: 'Куртка The North Face', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500' },
-        { title: 'Часы Casio G-Shock', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500' }
+        { title: 'Nike Air Force 1 белые', minP: 3500, maxP: 7500, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500' },
+        { title: 'Adidas Superstar', minP: 3000, maxP: 6500, img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500' },
+        { title: 'New Balance 574', minP: 4500, maxP: 8500, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500' },
+        { title: 'Куртка The North Face чёрная', minP: 5500, maxP: 11000, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500' },
+        { title: 'Пуховик Canada Goose', minP: 18000, maxP: 32000, img: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=500' },
+        { title: 'Худи Nike Sportswear', minP: 2500, maxP: 5500, img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500' },
+        { title: 'Свитшот Adidas Originals', minP: 2200, maxP: 4800, img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500' },
+        { title: 'Джинсы Levi\'s 501', minP: 3000, maxP: 6500, img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500' },
+        { title: 'Кроссовки Jordan 1 Retro', minP: 8000, maxP: 15000, img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500' },
+        { title: 'Часы Casio G-Shock GA-2100', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500' },
+        { title: 'Часы Seiko 5 Sports', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500' },
+        { title: 'Рюкзак The North Face Borealis', minP: 4000, maxP: 7500, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500' },
+        { title: 'Кепка New Era 59Fifty', minP: 1500, maxP: 3200, img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500' },
+        { title: 'Куртка парка зимняя', minP: 4500, maxP: 9000, img: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=500' },
+        { title: 'Футболка Supreme (реплика)', minP: 1200, maxP: 2800, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500' },
+        { title: 'Ботинки Timberland 6-inch', minP: 6000, maxP: 11000, img: 'https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=500' }
       ],
       'Дом и Уют': [
-        { title: 'Кофемашина DeLonghi', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500' },
-        { title: 'Диван раскладной', minP: 3500, maxP: 8000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500' },
-        { title: 'Игровое кресло', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500' }
+        { title: 'Кофемашина DeLonghi Magnifica', minP: 18000, maxP: 28000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500' },
+        { title: 'Кофемашина капсульная Nespresso', minP: 4500, maxP: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500' },
+        { title: 'Диван-кровать раскладной', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500' },
+        { title: 'Кресло офисное эргономичное', minP: 5500, maxP: 12000, img: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500' },
+        { title: 'Игровое кресло DXRacer', minP: 9000, maxP: 16000, img: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500' },
+        { title: 'Пылесос робот Xiaomi', minP: 12000, maxP: 20000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=500' },
+        { title: 'Пылесос Dyson V8', minP: 18000, maxP: 28000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=500' },
+        { title: 'Микроволновая печь Samsung', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=500' },
+        { title: 'Холодильник Indesit двухкамерный', minP: 18000, maxP: 28000, img: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500' },
+        { title: 'Стиральная машина LG 7кг', minP: 16000, maxP: 25000, img: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=500' },
+        { title: 'Телевизор Samsung 55" 4K', minP: 28000, maxP: 42000, img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500' },
+        { title: 'Телевизор LG OLED 48"', minP: 45000, maxP: 65000, img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500' },
+        { title: 'Увлажнитель воздуха Xiaomi', minP: 2500, maxP: 5000, img: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500' },
+        { title: 'Обогреватель масляный', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500' },
+        { title: 'Светильник настольный LED', minP: 1200, maxP: 2800, img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500' },
+        { title: 'Ковёр 2×3 м современный', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1600166898405-da9535204843?w=500' },
+        { title: 'Комплект постельного белья', minP: 1500, maxP: 3500, img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=500' },
+        { title: 'Штора блэкаут комплект', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=500' }
+      ],
+      'Спорт и отдых': [
+        { title: 'Велосипед горный Stels', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500' },
+        { title: 'Велосипед шоссейный', minP: 18000, maxP: 32000, img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500' },
+        { title: 'Самокат электро Xiaomi', minP: 15000, maxP: 25000, img: 'https://images.unsplash.com/photo-1600868883955-2b7f2b0b0b0b?w=500' },
+        { title: 'Гантели разборные 20 кг', minP: 2500, maxP: 5000, img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500' },
+        { title: 'Турник в дверной проём', minP: 1500, maxP: 3000, img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500' },
+        { title: 'Йога-мат нескользящий', minP: 800, maxP: 1800, img: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500' },
+        { title: 'Палатка 3-местная', minP: 4500, maxP: 9000, img: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=500' },
+        { title: 'Спальный мешок туристический', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=500' },
+        { title: 'Рюкзак туристический 60л', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500' },
+        { title: 'Лыжи беговые комплект', minP: 5000, maxP: 10000, img: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=500' },
+        { title: 'Коньки фигурные', minP: 3000, maxP: 6500, img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500' },
+        { title: 'Мяч футбольный Adidas', minP: 1200, maxP: 2800, img: 'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=500' },
+        { title: 'Ракетка теннисная Wilson', minP: 2500, maxP: 5500, img: 'https://images.unsplash.com/photo-1622163642992-6bf2b0f0b0b0?w=500' },
+        { title: 'Безынерционная катушка Shimano', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500' }
+      ],
+      'Детские товары': [
+        { title: 'Коляска прогулочная Chicco', minP: 8000, maxP: 15000, img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500' },
+        { title: 'Автокресло 9–36 кг', minP: 4500, maxP: 9000, img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500' },
+        { title: 'Детский велосипед 16"', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500' },
+        { title: 'Самокат детский 3-колёсный', minP: 1500, maxP: 3500, img: 'https://images.unsplash.com/photo-1600868883955-2b7f2b0b0b0b?w=500' },
+        { title: 'Конструктор LEGO 500+ деталей', minP: 2500, maxP: 5500, img: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=500' },
+        { title: 'Кукла Baby Born', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=500' },
+        { title: 'Радиоуправляемая машинка', minP: 1800, maxP: 4000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500' },
+        { title: 'Детский ноутбук обучающий', minP: 2500, maxP: 5000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500' },
+        { title: 'Манеж игровой', minP: 3000, maxP: 6000, img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500' },
+        { title: 'Стульчик для кормления', minP: 2500, maxP: 5500, img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=500' }
       ]
     };
 
     const descVariants = [
-      'Срочно! Полный комплект, чек остался.',
-      'Лежал без дела, продаю за ненадобностью.',
-      'Есть коцки, но на работу вообще не влияют.',
-      'Отличное состояние, без торга.',
-      'Покупался полгода назад, всё работает идеально.'
+      'Срочно! Полный комплект, чек и коробка сохранились.',
+      'Лежал без дела, продаю за ненадобностью. Торг уместен.',
+      'Есть небольшие коцки/потёртости, на работу не влияют.',
+      'Отличное состояние, почти не пользовались. Без торга.',
+      'Покупался полгода назад, всё работает идеально.',
+      'После ремонта/переезда, нужно срочно продать.',
+      'Подарили, не подошло по размеру/цвету. Новое.',
+      'Рабочее состояние, батарея держит нормально.',
+      'Срочная продажа, уезжаю. Цена ниже рынка.',
+      'Пользовался аккуратно, всегда в чехле/защите.',
+      'Комплект полный: зарядка, кабели, документы.',
+      'Был в одних руках, не ремонтировался.',
+      'Есть нюансы — по фото видно. На цену не влияют.',
+      'Покупал для себя, теперь нужно освободить место.',
+      'Состояние на 4 из 5. Работает без нареканий.',
+      'Новый, не вскрывался. Просто не понадобился.',
+      'После ребёнка, всё целое, просто вырос.',
+      'Зима прошла — продаю. Хранился в гараже.',
+      'Брал с Авито, сам пользовался пару месяцев.',
+      'Можно проверить на месте, встреча в центре.'
     ];
 
     let state = {
@@ -230,20 +337,45 @@
       const list = templates[cat];
       const template = list[Math.floor(Math.random() * list.length)];
 
+      // Делаем заголовок чуть разнообразнее
+      let title = template.title;
+      const extras = [
+        '', '', '', // чаще без дополнения
+        ' (идеал)',
+        ' (с документами)',
+        ' (торг)',
+        ' — срочно',
+        ' (почти новый)',
+        ' (1 владелец)',
+        ' б/у',
+        ' (полный комплект)'
+      ];
+      title += extras[Math.floor(Math.random() * extras.length)];
+
       const realMarketPrice = Math.round((template.minP + Math.random() * (template.maxP - template.minP)) / 500) * 500;
-      const discount = 0.6 + Math.random() * 0.28;
+      const discount = 0.55 + Math.random() * 0.32; // чуть шире разброс скидок
       const price = Math.round((realMarketPrice * discount) / 500) * 500;
+
+      // Разнообразные первые сообщения продавца
+      const firstMessages = [
+        'Здравствуйте! Продаю срочно.',
+        'Добрый день! Товар в отличном состоянии.',
+        'Привет! Могу показать сегодня.',
+        'Здравствуйте, пишите по делу.',
+        'Добрый! Готов к торгу в разумных пределах.',
+        'Здравствуйте! Всё работает, проверяйте.'
+      ];
 
       const newItem = {
         id: Date.now() + Math.random(),
-        title: template.title,
+        title: title,
         cat: cat,
         price: price,
         market: realMarketPrice,
         desc: descVariants[Math.floor(Math.random() * descVariants.length)],
         img: template.img,
         bargainRefused: false,
-        chat: [{ sender: 'seller', text: 'Здравствуйте! Продаю срочно.' }]
+        chat: [{ sender: 'seller', text: firstMessages[Math.floor(Math.random() * firstMessages.length)] }]
       };
 
       state.market.unshift(newItem);
@@ -276,7 +408,7 @@
             const offerPrice = isDiscountOffer ? Math.round((item.myPrice * 0.8) / 100) * 100 : item.myPrice;
             item.buyerOffer = {
               price: offerPrice,
-              msg: isDiscountOffer ? `Здравствуйте! Заберу прямо сегодня за ${offerPrice.toLocaleString()} ₽, уступите?` : `Здравствуйте! Готов купить за вашу цену (${offerPrice.toLocaleString()} ₽). Где встретимся?`
+              msg: isDiscountOffer ? `Здравствуйте! Заберу прямо сегодня за \( {offerPrice.toLocaleString()} ₽, уступите?` : `Здравствуйте! Готов купить за вашу цену ( \){offerPrice.toLocaleString()} ₽). Где встретимся?`
             };
             updated = true;
           }
@@ -329,7 +461,7 @@
             <div class="item-info">
               <div class="item-title">${item.title}</div>
               <div class="item-price">${(state.currentTab === 'market' ? item.price : item.myPrice).toLocaleString()} ₽</div>
-              <div class="item-market">${state.currentTab === 'market' ? `Рыночная: ~${item.market.toLocaleString()} ₽` : 'На продаже'}</div>
+              <div class="item-market">\( {state.currentTab === 'market' ? `Рыночная: \~ \){item.market.toLocaleString()} ₽` : 'На продаже'}</div>
             </div>
           `;
           list.appendChild(card);
@@ -361,7 +493,7 @@
       
       if (isMarket) {
         item.chat.forEach(msg => {
-          chatBox.innerHTML += `<div class="msg ${msg.sender}">${msg.text}</div>`;
+          chatBox.innerHTML += `<div class="msg \( {msg.sender}"> \){msg.text}</div>`;
         });
       } else {
         if (item.buyerOffer) {
