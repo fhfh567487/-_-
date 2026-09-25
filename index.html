@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Авито Перекуп Tycoon</title>
+  <title>Авито Перекуп</title>
   <style>
     :root {
       --primary: #00aaff;
@@ -15,99 +15,65 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 30px; }
-    header { background-color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; sticky: top; top: 0; z-index: 100; }
+    
+    header { background-color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 20px; color: var(--primary); }
     .stats { display: flex; gap: 15px; align-items: center; font-weight: bold; }
-    .btn-reset { background: var(--accent); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .btn-reset { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
     
-    .nav-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; margin-bottom: 15px; overflow-x: auto; }
-    .tab-btn { padding: 12px 20px; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+    .nav-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; text-align: center; }
     .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
 
     .container { max-width: 1000px; margin: 0 auto; padding: 0 10px; }
-    .news-banner { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; text-align: center; border: 1px solid #ffeeba; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-    .card { background: var(--card-bg); border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-    .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+    .card { background: var(--card-bg); border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
+    .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
     .card h3 { font-size: 16px; margin-bottom: 5px; }
     .card .price { font-size: 18px; font-weight: bold; color: var(--success); margin-bottom: 5px; }
     .card .meta { font-size: 12px; color: #666; margin-bottom: 10px; }
-    .badge { display: inline-block; padding: 3px 7px; font-size: 11px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; background: #eee; }
-    .badge.defect { background: #ffebee; color: #c62828; }
-    .badge.fake { background: #fff3e0; color: #ef6c00; }
-    .badge.clean { background: #e8f5e9; color: #2e7d32; }
 
     button.action-btn { width: 100%; padding: 8px; border: none; background: var(--primary); color: #fff; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 5px; }
     button.action-btn:disabled { background: #ccc; cursor: not-allowed; }
     button.secondary-btn { background: #6c757d; }
     button.success-btn { background: var(--success); }
 
-    /* Modal / Overlay */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
     .modal.active { display: flex; }
-    .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 450px; width: 90%; }
-
-    /* Skills & Shop */
-    .upgrade-item { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>💼 Перекуп Tycoon</h1>
+    <h1>💼 Авито Перекуп</h1>
     <div class="stats">
       <span>💰 <span id="balance">15000</span> ₽</span>
-      <span>📦 <span id="inventory-count">0</span>/<span id="max-capacity">5</span></span>
-      <button class="btn-reset" onclick="resetGame()">Сброс</button>
+      <button class="btn-reset" onclick="resetGame()">Сбросить прогресс</button>
     </div>
   </header>
 
   <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('market')">🛒 Рынок</button>
-    <button class="tab-btn" onclick="switchTab('inventory')">🎒 Склад / Инвентарь</button>
-    <button class="tab-btn" onclick="switchTab('skills')">⚡ Навыки</button>
-    <button class="tab-btn" onclick="switchTab('business')">🏬 Бизнес и Персонал</button>
+    <button class="tab-btn active" onclick="switchTab('market')">🛒 Объявления рынка</button>
+    <button class="tab-btn" onclick="switchTab('inventory')">🎒 Мои товары / Продажа</button>
   </div>
 
   <div class="container">
-    <div class="news-banner" id="news-banner">📢 Новость: На рынке стабильность. Спрос стандартный.</div>
-
-    <!-- Рынок -->
     <div id="tab-market" class="tab-content">
       <div class="grid" id="market-list"></div>
     </div>
 
-    <!-- Инвентарь -->
     <div id="tab-inventory" class="tab-content" style="display:none;">
       <div class="grid" id="inventory-list"></div>
     </div>
-
-    <!-- Навыки -->
-    <div id="tab-skills" class="tab-content" style="display:none;">
-      <h2>Улучшение навыков</h2>
-      <br>
-      <div id="skills-list"></div>
-    </div>
-
-    <!-- Бизнес -->
-    <div id="tab-business" class="tab-content" style="display:none;">
-      <h2>Развитие бизнеса</h2>
-      <br>
-      <h3>Складские помещения</h3>
-      <div id="warehouse-upgrades"></div>
-      <br>
-      <h3>Персонал</h3>
-      <div id="staff-upgrades"></div>
-    </div>
   </div>
 
-  <!-- Модалка Тога / Покупателя -->
   <div class="modal" id="chat-modal">
     <div class="modal-content">
-      <h3 id="modal-title">Входящее предложение</h3>
+      <h3 id="modal-title">Сообщение</h3>
       <br>
-      <p id="modal-text">Покупатель предлагает цену...</p>
+      <p id="modal-text">Текст предложения...</p>
       <br>
       <button class="action-btn success-btn" id="modal-accept">Согласиться</button>
       <button class="action-btn secondary-btn" style="margin-top:5px;" onclick="closeModal()">Отклонить</button>
@@ -115,41 +81,32 @@
   </div>
 
   <script>
-    // --- ДАННЫЕ И СОСТОЯНИЕ ---
     let state = {
       balance: 15000,
-      capacity: 5,
-      bannedUntil: 0,
-      skills: {
-        charisma: 0,   // Торг при покупке
-        analytics: 0,  // Видимость рыночной цены
-        repair: 0      // Скидка на ремонт
-      },
-      staff: {
-        buyer: false,  // Скупщик
-        seller: false  // Менеджер
-      },
       inventory: [],
       market: []
     };
 
-    const categories = ['Электроника', 'Одежда', 'Авто', 'Антиквариат'];
-    const itemTemplates = [
-      { name: 'iPhone 11', cat: 'Электроника', basePrice: 18000, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300' },
-      { name: 'Видеокарта GTX 1060', cat: 'Электроника', basePrice: 7000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=300' },
-      { name: 'Кроссовки Nike Air', cat: 'Одежда', basePrice: 6000, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300', canBeFake: true },
-      { name: 'Часы Rolex Submariner', cat: 'Антиквариат', basePrice: 25000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300', canBeFake: true },
-      { name: 'ВАЗ 2107 б/у', cat: 'Авто', basePrice: 45000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300' },
-      { name: 'Виниловый проигрыватель', cat: 'Антиквариат', basePrice: 8000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=300' }
+    const itemNames = [
+      'iPhone 11 64GB', 'Видеокарта GTX 1060', 'Кроссовки Nike Air', 'Часы Rolex',
+      'ВАЗ 2107 б/у', 'Виниловый проигрыватель', 'PlayStation 4 Pro', 'Ноутбук ASUS',
+      'Палатка 3-местная', 'Электросамокат', 'Дрель Bosch', 'Телевизор Samsung 43"'
     ];
 
-    // --- СОХРАНЕНИЕ / ЗАГРУЗКА ---
+    const images = [
+      'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300',
+      'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=300',
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300',
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300',
+      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300'
+    ];
+
     function saveGame() {
-      localStorage.setItem('avito_tycoon_save', JSON.stringify(state));
+      localStorage.setItem('avito_simple_save', JSON.stringify(state));
     }
 
     function loadGame() {
-      const saved = localStorage.getItem('avito_tycoon_save');
+      const saved = localStorage.getItem('avito_simple_save');
       if (saved) {
         state = JSON.parse(saved);
       } else {
@@ -160,49 +117,33 @@
 
     function resetGame() {
       if (confirm('Сбросить весь прогресс?')) {
-        localStorage.removeItem('avito_tycoon_save');
+        localStorage.removeItem('avito_simple_save');
         location.reload();
       }
     }
 
-    // --- ВЫРАБОТКА РЫНКА ---
     function generateMarket() {
       state.market = [];
-      for (let i = 0; i < 12; i++) {
-        const tpl = itemTemplates[Math.floor(Math.random() * itemTemplates.length)];
-        const isDefective = Math.random() < 0.35;
-        const isFake = tpl.canBeFake ? Math.random() < 0.4 : false;
-        const isDelivery = Math.random() < 0.3;
-
-        let buyPrice = Math.round(tpl.basePrice * (0.6 + Math.random() * 0.3));
-        if (isDefective) buyPrice = Math.round(buyPrice * 0.6);
-
+      for (let i = 0; i < 20; i++) {
+        const name = itemNames[Math.floor(Math.random() * itemNames.length)];
+        const img = images[Math.floor(Math.random() * images.length)];
+        const basePrice = Math.floor(Math.random() * 20 + 3) * 1000;
+        
         state.market.push({
           id: Date.now() + Math.random(),
-          name: tpl.name,
-          category: tpl.cat,
-          buyPrice: buyPrice,
-          marketValue: tpl.basePrice,
-          img: tpl.img,
-          isDefective: isDefective,
-          isFake: isFake,
-          authenticated: false,
-          isDelivery: isDelivery,
-          deliveryTime: isDelivery ? 8 : 0
+          name: name,
+          img: img,
+          price: basePrice,
+          marketValue: Math.round(basePrice * 1.3),
+          bargainRefused: false
         });
       }
     }
 
-    // --- РЕНДЕРИНГ ИНТЕРФЕЙСА ---
     function render() {
       document.getElementById('balance').innerText = state.balance.toLocaleString();
-      document.getElementById('inventory-count').innerText = state.inventory.length;
-      document.getElementById('max-capacity').innerText = state.capacity;
-
       renderMarket();
       renderInventory();
-      renderSkills();
-      renderBusiness();
     }
 
     function renderMarket() {
@@ -210,20 +151,14 @@
       list.innerHTML = '';
 
       state.market.forEach(item => {
-        const discountBonus = state.skills.charisma * 0.05;
-        const finalPrice = Math.round(item.buyPrice * (1 - discountBonus));
-
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
           <img src="${item.img}">
           <h3>${item.name}</h3>
-          <div class="price">${finalPrice.toLocaleString()} ₽</div>
-          ${state.skills.analytics > 0 ? `<div class="meta">Рыночная цена: ~${item.marketValue} ₽</div>` : ''}
-          <div>
-            ${item.isDefective ? '<span class="badge defect">🛠 Нужен ремонт</span>' : ''}
-            ${item.isDelivery ? '<span class="badge">🚚 Доставка (8с)</span>' : ''}
-          </div>
+          <div class="price">${item.price.toLocaleString()} ₽</div>
+          <div class="meta">Рыночная цена: ~${item.marketValue.toLocaleString()} ₽</div>
+          ${!item.bargainRefused ? `<button class="action-btn secondary-btn" onclick="tryBargain(${item.id})">📉 Торговаться (-15%)</button>` : ''}
           <button class="action-btn" onclick="buyItem(${item.id})">Купить</button>
         `;
         list.appendChild(card);
@@ -237,164 +172,52 @@
       state.inventory.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
-
-        let statusText = item.inDelivery ? `🚚 В пути (${item.deliveryTime}s)` : (item.onSale ? '💬 В продаже...' : '📦 На складе');
-        
         card.innerHTML = `
           <img src="${item.img}">
           <h3>${item.name}</h3>
           <div class="price">Куплено за: ${item.buyPrice.toLocaleString()} ₽</div>
-          <div class="meta">Статус: ${statusText}</div>
-          <div>
-            ${item.isCleaned ? '<span class="badge clean">✨ Чистый</span>' : ''}
-            ${item.isDefective ? '<span class="badge defect">🛠 Разбит</span>' : ''}
-            ${item.authenticated ? `<span class="badge">${item.isFake ? '❌ Подделка' : '✅ Оригинал'}</span>` : ''}
-          </div>
-          <br>
-          ${!item.inDelivery && !item.onSale ? `
-            ${item.isDefective ? `<button class="action-btn secondary-btn" onclick="repairItem(${item.id})">Ремонт (-${Math.round(2000 * (1 - state.skills.repair * 0.1))}₽)</button>` : ''}
-            ${!item.isCleaned ? `<button class="action-btn secondary-btn" onclick="cleanItem(${item.id})">Почистить (Бесплатно)</button>` : ''}
-            ${!item.authenticated ? `<button class="action-btn secondary-btn" onclick="authenticateItem(${item.id})">Экспертиза (-500₽)</button>` : ''}
-            <button class="action-btn success-btn" onclick="putOnSale(${item.id})">Выставить на продажу</button>
-          ` : ''}
+          <div class="meta">Статус: ${item.onSale ? '💬 В продаже...' : '📦 На складе'}</div>
+          ${!item.onSale ? `<button class="action-btn success-btn" onclick="putOnSale(${item.id})">Выставить на продажу</button>` : ''}
         `;
         list.appendChild(card);
       });
     }
 
-    function renderSkills() {
-      const list = document.getElementById('skills-list');
-      list.innerHTML = `
-        <div class="upgrade-item">
-          <div>
-            <strong>🗣 Харизма (Ур. ${state.skills.charisma}/5)</strong>
-            <p>Скидка на покупку товаров: -${state.skills.charisma * 5}%</p>
-          </div>
-          <button class="action-btn" ${state.skills.charisma >= 5 ? 'disabled' : ''} onclick="upgradeSkill('charisma', ${ (state.skills.charisma + 1) * 5000 })">
-            ${state.skills.charisma >= 5 ? 'MAX' : 'Улучшить (' + ((state.skills.charisma + 1) * 5000) + '₽)'}
-          </button>
-        </div>
-        <div class="upgrade-item">
-          <div>
-            <strong>📊 Аналитика рынка (Ур. ${state.skills.analytics}/1)</strong>
-            <p>Показывает реальную рыночную стоимость товаров</p>
-          </div>
-          <button class="action-btn" ${state.skills.analytics >= 1 ? 'disabled' : ''} onclick="upgradeSkill('analytics', 3000)">
-            ${state.skills.analytics >= 1 ? 'Изучено' : 'Изучить (3000₽)'}
-          </button>
-        </div>
-        <div class="upgrade-item">
-          <div>
-            <strong>🔧 Быстрый мастер (Ур. ${state.skills.repair}/5)</strong>
-            <p>Скидка на стоимость ремонта: -${state.skills.repair * 10}%</p>
-          </div>
-          <button class="action-btn" ${state.skills.repair >= 5 ? 'disabled' : ''} onclick="upgradeSkill('repair', ${ (state.skills.repair + 1) * 4000 })">
-            ${state.skills.repair >= 5 ? 'MAX' : 'Улучшить (' + ((state.skills.repair + 1) * 4000) + '₽)'}
-          </button>
-        </div>
-      `;
-    }
+    function tryBargain(id) {
+      const item = state.market.find(i => i.id === id);
+      if (!item) return;
 
-    function renderBusiness() {
-      document.getElementById('warehouse-upgrades').innerHTML = `
-        <div class="upgrade-item">
-          <div>
-            <strong>📦 Вместимость склада (${state.capacity} слотов)</strong>
-            <p>Расширить склад на +5 слотов</p>
-          </div>
-          <button class="action-btn" onclick="expandWarehouse()">Расширить (10 000 ₽)</button>
-        </div>
-      `;
-
-      document.getElementById('staff-upgrades').innerHTML = `
-        <div class="upgrade-item">
-          <div>
-            <strong>🤖 Менеджер продаж</strong>
-            <p>Автоматически принимает выгодные предложения от покупателей</p>
-          </div>
-          <button class="action-btn" ${state.staff.seller ? 'disabled' : ''} onclick="hireStaff('seller', 25000)">
-            ${state.staff.seller ? 'Нанят' : 'Нанять (25 000 ₽)'}
-          </button>
-        </div>
-      `;
-    }
-
-    // --- ЛОГИКА ИГРЫ ---
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-      event.target.classList.add('active');
-      document.getElementById('tab-' + tab).style.display = 'block';
-    }
-
-    function buyItem(id) {
-      if (Date.now() < state.bannedUntil) {
-        alert('ВАШ АККАУНТ ЗАБЛОКИРОВАН ЗА ПРОДАЖУ ПОДДЕЛОК! Подождите.');
-        return;
+      if (Math.random() < 0.5) {
+        item.price = Math.round(item.price * 0.85);
+        alert('Продавец согласился скинуть цену!');
+      } else {
+        item.bargainRefused = true;
+        alert('Продавец отказался от скидки!');
       }
-      if (state.inventory.length >= state.capacity) {
-        alert('Склад заполнен! Улучшите склад в вкладке "Бизнес".');
-        return;
-      }
-      const idx = state.market.findIndex(i => i.id === id);
-      const item = state.market[idx];
-      const discount = state.skills.charisma * 0.05;
-      const cost = Math.round(item.buyPrice * (1 - discount));
-
-      if (state.balance < cost) {
-        alert('Недостаточно денег!');
-        return;
-      }
-
-      state.balance -= cost;
-      state.market.splice(idx, 1);
-
-      const invItem = {
-        ...item,
-        buyPrice: cost,
-        inDelivery: item.isDelivery,
-        onSale: false,
-        isCleaned: false
-      };
-
-      state.inventory.push(invItem);
       saveGame();
       render();
     }
 
-    function cleanItem(id) {
-      const item = state.inventory.find(i => i.id === id);
-      if (item) {
-        item.isCleaned = true;
-        item.marketValue = Math.round(item.marketValue * 1.1);
-        saveGame();
-        render();
-      }
-    }
+    function buyItem(id) {
+      const idx = state.market.findIndex(i => i.id === id);
+      const item = state.market[idx];
 
-    function repairItem(id) {
-      const cost = Math.round(2000 * (1 - state.skills.repair * 0.1));
-      if (state.balance < cost) return alert('Недостаточно денег на ремонт!');
-      
-      const item = state.inventory.find(i => i.id === id);
-      if (item) {
-        state.balance -= cost;
-        item.isDefective = false;
-        item.marketValue = Math.round(item.marketValue * 1.4);
-        saveGame();
-        render();
+      if (state.balance < item.price) {
+        alert('Недостаточно денег!');
+        return;
       }
-    }
 
-    function authenticateItem(id) {
-      if (state.balance < 500) return alert('Нужно 500 ₽ на экспертизу!');
-      const item = state.inventory.find(i => i.id === id);
-      if (item) {
-        state.balance -= 500;
-        item.authenticated = true;
-        saveGame();
-        render();
-      }
+      state.balance -= item.price;
+      state.inventory.push({
+        ...item,
+        buyPrice: item.price,
+        onSale: false,
+        offer: null
+      });
+
+      state.market.splice(idx, 1);
+      saveGame();
+      render();
     }
 
     function putOnSale(id) {
@@ -403,116 +226,61 @@
         item.onSale = true;
         saveGame();
         render();
-        
-        // Таймер ожидания покупателя
-        setTimeout(() => triggerCustomerOffer(item.id), 3000 + Math.random() * 4000);
       }
-    }
-
-    function triggerCustomerOffer(itemId) {
-      const item = state.inventory.find(i => i.id === itemId);
-      if (!item || !item.onSale) return;
-
-      // Шанс странного предложения (картошка/неадекват)
-      if (Math.random() < 0.2) {
-        showModal("Странный покупатель", "Здравствуйте! Обмен на 2 мешка картошки и бензопилу интересует?", () => {
-          alert("Вы отказались от предложения.");
-          item.onSale = false;
-          render();
-        });
-        return;
-      }
-
-      let offerPrice = Math.round(item.marketValue * (0.9 + Math.random() * 0.3));
-
-      // Если бот-менеджер
-      if (state.staff.seller && offerPrice >= item.buyPrice * 1.1) {
-        completeSale(item, offerPrice);
-        return;
-      }
-
-      showModal(
-        "💬 Новое предложение!",
-        `Покупатель хочет купить "${item.name}" за ${offerPrice.toLocaleString()} ₽. Продать?`,
-        () => completeSale(item, offerPrice)
-      );
-    }
-
-    function completeSale(item, price) {
-      closeModal();
-      // Проверка на подделку
-      if (item.isFake) {
-        alert("🚨 ПОКУПАТЕЛЬ ОБНАРУЖИЛ ПОДДЕЛКУ! Ваш аккаунт заблокирован на 30 сек., вы уплатили штраф 5000 ₽.");
-        state.balance = Math.max(0, state.balance - 5000);
-        state.bannedUntil = Date.now() + 30000;
-      } else {
-        state.balance += price;
-        alert(` Успешно продано за ${price.toLocaleString()} ₽!`);
-      }
-
-      state.inventory = state.inventory.filter(i => i.id !== item.id);
-      saveGame();
-      render();
     }
 
     function showModal(title, text, onAccept) {
       document.getElementById('modal-title').innerText = title;
       document.getElementById('modal-text').innerText = text;
       document.getElementById('chat-modal').classList.add('active');
-      
-      const acceptBtn = document.getElementById('modal-accept');
-      acceptBtn.onclick = onAccept;
+      document.getElementById('modal-accept').onclick = onAccept;
     }
 
     function closeModal() {
       document.getElementById('chat-modal').classList.remove('active');
     }
 
-    function upgradeSkill(skill, price) {
-      if (state.balance >= price) {
-        state.balance -= price;
-        state.skills[skill]++;
-        saveGame();
-        render();
-      } else {
-        alert('Недостаточно денег!');
-      }
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).style.display = 'block';
     }
 
-    function expandWarehouse() {
-      if (state.balance >= 10000) {
-        state.balance -= 10000;
-        state.capacity += 5;
-        saveGame();
-        render();
-      } else alert('Недостаточно денег!');
-    }
-
-    function hireStaff(type, price) {
-      if (state.balance >= price) {
-        state.balance -= price;
-        state.staff[type] = true;
-        saveGame();
-        render();
-      } else alert('Недостаточно денег!');
-    }
-
-    // --- ТАЙМЕРЫ И ИВЕНТЫ ---
+    // --- ТАЙМЕР ВХОДЯЩИХ ПРЕДЛОЖЕНИЙ ---
     setInterval(() => {
-      // Обновление логистики
       let changed = false;
+
       state.inventory.forEach(item => {
-        if (item.inDelivery) {
-          item.deliveryTime--;
-          if (item.deliveryTime <= 0) {
-            item.inDelivery = false;
+        if (item.onSale && !item.hasPendingOffer) {
+          if (Math.random() < 0.4) {
+            item.hasPendingOffer = true;
             changed = true;
+
+            const isCrazyOffer = Math.random() < 0.25;
+            if (isCrazyOffer) {
+              showModal("💬 Входящий диалог", `Здравствуйте! Предлагаю обмен товара "${item.name}" на 2 мешка картошки и бензопилу. Согласны?`, () => {
+                alert("Вы отказались от предложения.");
+                item.hasPendingOffer = false;
+                closeModal();
+                saveGame();
+                render();
+              });
+            } else {
+              const offerPrice = Math.round(item.marketValue * (0.85 + Math.random() * 0.3));
+              showModal("💬 Новое предложение!", `Покупатель хочет купить "${item.name}" за ${offerPrice.toLocaleString()} ₽. Продать?`, () => {
+                state.balance += offerPrice;
+                state.inventory = state.inventory.filter(i => i.id !== item.id);
+                closeModal();
+                saveGame();
+                render();
+              });
+            }
           }
         }
       });
 
-      // Пополнение рынка если мало товаров
-      if (state.market.length < 5) {
+      if (state.market.length < 8) {
         generateMarket();
         changed = true;
       }
@@ -521,9 +289,8 @@
         saveGame();
         render();
       }
-    }, 1000);
+    }, 4000);
 
-    // Старт
     loadGame();
   </script>
 </body>
