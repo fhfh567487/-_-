@@ -11,6 +11,7 @@
             --card-bg: #ffffff;
             --text: #222222;
             --green: #24b24b;
+            --orange: #ff9f43;
         }
 
         body {
@@ -146,6 +147,7 @@
             flex-direction: column;
             cursor: pointer;
             transition: transform 0.1s;
+            position: relative;
         }
 
         .card:active {
@@ -185,6 +187,25 @@
             font-size: 11px;
             color: #888;
             margin-top: 4px;
+        }
+
+        .badge {
+            position: absolute;
+            top: 6px; right: 6px;
+            background: var(--orange);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* Окно диалога / Торга */
@@ -252,6 +273,10 @@
         .action-btn.cancel {
             background: #ee5253;
         }
+
+        .action-btn.orange {
+            background: var(--orange);
+        }
     </style>
 </head>
 <body>
@@ -273,14 +298,14 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('market', this)">Рынок</button>
-        <button class="tab-btn" onclick="switchTab('inventory', this)">Мои товары (<span id="inv-count">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('inventory', this)">Мои объявления (<span id="inv-count">0</span>)</button>
     </div>
 
     <main>
         <div id="feed" class="feed"></div>
     </main>
 
-    <!-- Модальное окно торга/покупки -->
+    <!-- Модальное окно -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3 id="modal-title" style="margin-top:0;">Название</h3>
@@ -288,64 +313,44 @@
             <p id="modal-desc" style="color:#666; font-size:14px;"></p>
             <div class="card-price" id="modal-price">0 ₽</div>
 
-            <div class="chat-box" id="chat">
-                <div class="msg seller">Здравствуйте! Продаю срочно.</div>
-            </div>
+            <div class="chat-box" id="chat"></div>
 
-            <div id="modal-actions">
-                <button class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>
-                <button class="action-btn" onclick="buyItem()">🛒 Купить прямо сейчас</button>
-                <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-            </div>
+            <div id="modal-actions"></div>
         </div>
     </div>
 
     <script>
-        // Игровое состояние
         let balance = 10000;
         let currentCat = 'all';
         let currentTab = 'market';
         let selectedItem = null;
         let inventory = [];
 
-        // Расширенная база данных объявлений (20 товаров)
+        // База данных рынка
         const marketItems = [
-            // Электроника
-            { id: 1, title: 'iPhone 11 64GB', category: 'tech', price: 12000, realValue: 18000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400', desc: 'Срочно! Экран немного в царапинах, батарея 81%. Работает идеально.' },
-            { id: 2, title: 'Игровая приставка PS4 Slim', category: 'tech', price: 9000, realValue: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400', desc: 'Отдам с двумя джойстиками. Шумит, надо почистить от пыли.' },
-            { id: 3, title: 'Ноутбук Lenovo i3 / 8GB', category: 'tech', price: 8000, realValue: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400', desc: 'Для учебы и работы. Тормозит HDD, лучше поставить SSD.' },
-            { id: 4, title: 'Видеокарта GTX 1060 6GB', category: 'tech', price: 5000, realValue: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400', desc: 'Стояла в домашнем ПК, не майнилась. Термопасту не менял.' },
-            { id: 5, title: 'Наушники AirPods 2 (оригинал)', category: 'tech', price: 3000, realValue: 6000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400', desc: 'Кейс слегка поцарапан. Аккумулятор держит отлично.' },
-            { id: 6, title: 'Электронная книга Kindle', category: 'tech', price: 2500, realValue: 5000, img: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400', desc: 'Батарея держит месяц. В комплекте чехол.' },
-            { id: 7, title: 'Планшет iPad Air 2', category: 'tech', price: 6500, realValue: 11000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', desc: 'Корпус в идеале, лежал без дела. Забыли пароль от старого iCloud, но сбросить можно.' },
-
-            // Одежда и обувь
-            { id: 8, title: 'Кроссовки Nike Air Force 1', category: 'clothes', price: 2000, realValue: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400', desc: 'Оригинал. Немного грязные, стирка решит проблему.' },
-            { id: 9, title: 'Кожаная куртка (винтаж)', category: 'clothes', price: 1500, realValue: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', desc: 'Настоящая кожа. Лежала на чердаке.' },
-            { id: 10, title: 'Худи Stone Island (копия?)', category: 'clothes', price: 1800, realValue: 5000, img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400', desc: 'Покупал дорого. Патч на месте, продаю потому что мал.' },
-            { id: 11, title: 'Наручные часы Casio G-Shock', category: 'clothes', price: 2200, realValue: 4500, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', desc: 'Водонепроницаемые, нужно только поменять батарейку.' },
-
-            // Авто и запчасти
-            { id: 12, title: 'Старый ВАЗ 2107 (на ходу)', category: 'auto', price: 35000, realValue: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'На ходу, пороги устали. Музыка есть. Заводится с полтычка.' },
-            { id: 13, title: 'Литые диски R16 (4 шт)', category: 'auto', price: 7000, realValue: 13000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=400', desc: 'Ровные, не вареные. Есть бордюрка, под покраску.' },
-            { id: 14, title: 'Сабвуфер 1000W с усилителем', category: 'auto', price: 4500, realValue: 9000, img: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400', desc: 'Качает отлично. Провода в комплекте.' },
-
-            // Дом, бытовая техника и раритет
-            { id: 15, title: 'Кофемашина DeLonghi', category: 'home', price: 4000, realValue: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Капучинатор работает. Требуется почистить от накипи.' },
-            { id: 16, title: 'Пылесос Dyson (не включается)', category: 'home', price: 3000, realValue: 12000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400', desc: 'Перестал заряжаться. Скорее всего умер аккумулятор.' },
-            { id: 17, title: 'Советский виниловый проигрыватель', category: 'home', price: 2000, realValue: 6000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400', desc: 'Находка из гаража. Включается, пластинка крутится.' },
-            { id: 18, title: 'Микроволновка Samsung', category: 'home', price: 1200, realValue: 3000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400', desc: 'Греет отлично, слегка облупилась эмаль внутри.' },
-            { id: 19, title: 'Гитара акустическая Fender', category: 'home', price: 5000, realValue: 9500, img: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400', desc: 'Звучит приятно. Надо поменять струны.' },
-            { id: 20, title: 'Ретро фотоаппарат Зенит-Е', category: 'home', price: 1500, realValue: 4000, img: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400', desc: 'Шел в комплекте с объективом Гелиос 44-2.' }
+            { id: 1, title: 'iPhone 11 64GB', category: 'tech', price: 12000, realValue: 18000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400', desc: 'Срочно! Экран немного в царапинах, батарея 81%.' },
+            { id: 2, title: 'Игровая приставка PS4 Slim', category: 'tech', price: 9000, realValue: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400', desc: 'Отдам с двумя джойстиками. Шумит, надо почистить.' },
+            { id: 3, title: 'Ноутбук Lenovo i3 / 8GB', category: 'tech', price: 8000, realValue: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400', desc: 'Для учебы и работы. Тормозит HDD.' },
+            { id: 4, title: 'Видеокарта GTX 1060 6GB', category: 'tech', price: 5000, realValue: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400', desc: 'Стояла в домашнем ПК, не майнилась.' },
+            { id: 5, title: 'Кроссовки Nike Air Force 1', category: 'clothes', price: 2000, realValue: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400', desc: 'Оригинал. Немного грязные, стирка решит проблему.' },
+            { id: 6, title: 'Кожаная куртка (винтаж)', category: 'clothes', price: 1500, realValue: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', desc: 'Настоящая кожа. Лежала на чердаке.' },
+            { id: 7, title: 'Старый ВАЗ 2107 (на ходу)', category: 'auto', price: 35000, realValue: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'На ходу, пороги устали. Музыка есть.' },
+            { id: 8, title: 'Кофемашина DeLonghi', category: 'home', price: 4000, realValue: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Работает хорошо, нужно почистить от накипи.' }
         ];
 
-        // Обновление интерфейса баланса
+        // Фразы покупателей при торге
+        const buyerPhrases = [
+            { text: "Здравствуйте! Заберу прямо сейчас за {price} ₽, устраивает?", discount: 0.85 },
+            { text: "Приветствую! Готов купить за {price} ₽, больше нет.", discount: 0.80 },
+            { text: "Добрый день! Если отдадите за {price} ₽ — приеду через 20 минут!", discount: 0.90 },
+            { text: "Здравствуйте, заберу без проверок по вашей цене ({price} ₽)!", discount: 1.0 }
+        ];
+
         function updateUI() {
             document.getElementById('balance').innerText = `Баланс: ${balance.toLocaleString()} ₽`;
             document.getElementById('inv-count').innerText = inventory.length;
         }
 
-        // Рендер списка товаров
         function renderFeed() {
             const feed = document.getElementById('feed');
             const searchVal = document.getElementById('search').value.toLowerCase();
@@ -361,19 +366,28 @@
                 card.className = 'card';
                 card.onclick = () => openModal(item);
 
+                let badgeHTML = '';
+                if (currentTab === 'inventory') {
+                    if (item.pendingOffer) {
+                        badgeHTML = `<div class="badge">💬 Есть предложение!</div>`;
+                    } else {
+                        badgeHTML = `<div class="badge" style="background:#888;">⏳ Ждет покупателя...</div>`;
+                    }
+                }
+
                 card.innerHTML = `
+                    ${badgeHTML}
                     <img src="${item.img}" alt="${item.title}">
                     <div class="card-info">
                         <div class="card-title">${item.title}</div>
-                        <div class="card-price">${item.price.toLocaleString()} ₽</div>
-                        <div class="card-seller">${currentTab === 'market' ? 'Частное лицо' : 'В вашем инвентаре'}</div>
+                        <div class="card-price">${(item.mySellingPrice || item.price).toLocaleString()} ₽</div>
+                        <div class="card-seller">${currentTab === 'market' ? 'Частное лицо' : 'Ваше объявление'}</div>
                     </div>
                 `;
                 feed.appendChild(card);
             });
         }
 
-        // Фильтрация по категориям
         function filterCat(cat, btn) {
             currentCat = cat;
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -381,7 +395,6 @@
             renderFeed();
         }
 
-        // Переключение вкладок (Рынок / Мои товары)
         function switchTab(tab, btn) {
             currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -389,29 +402,50 @@
             renderFeed();
         }
 
-        // Открытие карточки
         function openModal(item) {
             selectedItem = item;
             document.getElementById('modal-title').innerText = item.title;
             document.getElementById('modal-img').src = item.img;
             document.getElementById('modal-desc').innerText = item.desc;
-            document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽`;
-
+            
             const actions = document.getElementById('modal-actions');
             const chat = document.getElementById('chat');
-            chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
 
             if (currentTab === 'market') {
+                document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽`;
+                chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
                 actions.innerHTML = `
                     <button class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>
                     <button class="action-btn" onclick="buyItem()">🛒 Купить прямо сейчас</button>
                     <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
                 `;
             } else {
-                actions.innerHTML = `
-                    <button class="action-btn" onclick="sellItem()">📢 Выставить на продажу (${item.realValue.toLocaleString()} ₽)</button>
-                    <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
-                `;
+                // Если наш товар
+                document.getElementById('modal-price').innerText = `Ваша цена: ${item.mySellingPrice.toLocaleString()} ₽`;
+
+                if (!item.isListed) {
+                    // Еще не выставили
+                    chat.innerHTML = '<div class="msg seller">Товар у вас на складе. Выставьте его на продажу!</div>';
+                    actions.innerHTML = `
+                        <button class="action-btn" onclick="startSelling()">📢 Выставить на продажу (${item.realValue.toLocaleString()} ₽)</button>
+                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
+                    `;
+                } else if (item.pendingOffer) {
+                    // Есть входящее предложение от покупателя
+                    const offer = item.pendingOffer;
+                    chat.innerHTML = `<div class="msg seller">${offer.text}</div>`;
+                    actions.innerHTML = `
+                        <button class="action-btn" onclick="acceptOffer()">✅ Продать за ${offer.offeredPrice.toLocaleString()} ₽</button>
+                        <button class="action-btn orange" onclick="declineOffer()">❌ Отклонить (Ждать другого)</button>
+                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
+                    `;
+                } else {
+                    // Выставлен, но покупатель еще не написал
+                    chat.innerHTML = '<div class="msg seller">Объявление опубликовано. Покупатели смотрят ваше объявление...</div>';
+                    actions.innerHTML = `
+                        <button class="action-btn cancel" onclick="closeModal()">Закрыть</button>
+                    `;
+                }
             }
 
             document.getElementById('modal').style.display = 'flex';
@@ -421,29 +455,27 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        // Механика торга
+        // Покупка на рынке
         function bargain() {
             const chat = document.getElementById('chat');
             chat.innerHTML += `<div class="msg player">Скинете цену? Заберу быстрей!</div>`;
             
-            // 60% шанс успеха
             if (Math.random() > 0.4) {
                 const newPrice = Math.round(selectedItem.price * 0.85);
                 selectedItem.price = newPrice;
                 document.getElementById('modal-price').innerText = `${newPrice.toLocaleString()} ₽`;
                 setTimeout(() => {
-                    chat.innerHTML += `<div class="msg seller">Ладно, отдам за ${newPrice.toLocaleString()} ₽, если заберете сегодня!</div>`;
+                    chat.innerHTML += `<div class="msg seller">Ладно, отдам за ${newPrice.toLocaleString()} ₽!</div>`;
                     chat.scrollTop = chat.scrollHeight;
-                }, 500);
+                }, 400);
             } else {
                 setTimeout(() => {
-                    chat.innerHTML += `<div class="msg seller">Нет, цена и так минимальная. Без торга!</div>`;
+                    chat.innerHTML += `<div class="msg seller">Нет, без торга!</div>`;
                     chat.scrollTop = chat.scrollHeight;
-                }, 500);
+                }, 400);
             }
         }
 
-        // Покупка товара
         function buyItem() {
             if (balance < selectedItem.price) {
                 alert('У вас недостаточно денег!');
@@ -451,22 +483,54 @@
             }
 
             balance -= selectedItem.price;
+            selectedItem.mySellingPrice = selectedItem.realValue;
+            selectedItem.isListed = false;
+            selectedItem.pendingOffer = null;
+            
             inventory.push(selectedItem);
             
-            // Удаляем из общего рынка
             const index = marketItems.findIndex(i => i.id === selectedItem.id);
             if (index > -1) marketItems.splice(index, 1);
 
             updateUI();
             closeModal();
             renderFeed();
-            alert('Товар успешно куплен и перемещен в ваш инвентарь!');
+            alert('Товар куплен! Перейдите во вкладку "Мои объявления", чтобы выставить его на продажу.');
         }
 
-        // Продажа товара из инвентаря
-        function sellItem() {
-            const profit = selectedItem.realValue;
-            balance += profit;
+        // Старт продажи нашего товара
+        function startSelling() {
+            selectedItem.isListed = true;
+            closeModal();
+            renderFeed();
+
+            // Запускаем таймер: покупатель напишет через 3-7 секунд
+            const waitTime = Math.floor(Math.random() * 4000) + 3000;
+            
+            setTimeout(() => {
+                if (inventory.includes(selectedItem)) {
+                    generateBuyerOffer(selectedItem);
+                }
+            }, waitTime);
+        }
+
+        // Генерация предложения от покупателя
+        function generateBuyerOffer(item) {
+            const template = buyerPhrases[Math.floor(Math.random() * buyerPhrases.length)];
+            const offeredPrice = Math.round(item.mySellingPrice * template.discount);
+            
+            item.pendingOffer = {
+                text: template.text.replace('{price}', offeredPrice.toLocaleString()),
+                offeredPrice: offeredPrice
+            };
+
+            renderFeed();
+        }
+
+        // Принять предложение покупателя
+        function acceptOffer() {
+            const finalPrice = selectedItem.pendingOffer.offeredPrice;
+            balance += finalPrice;
 
             const index = inventory.findIndex(i => i.id === selectedItem.id);
             if (index > -1) inventory.splice(index, 1);
@@ -474,10 +538,24 @@
             updateUI();
             closeModal();
             renderFeed();
-            alert(`Поздравляем! Вы успешно перепродали товар за ${profit.toLocaleString()} ₽!`);
+            alert(`Ура! Вы продали товар за ${finalPrice.toLocaleString()} ₽!`);
         }
 
-        // Старт игры
+        // Отклонить предложение покупателя
+        function declineOffer() {
+            selectedItem.pendingOffer = null;
+            closeModal();
+            renderFeed();
+
+            // Через некоторое время напишет новый покупатель
+            const waitTime = Math.floor(Math.random() * 5000) + 4000;
+            setTimeout(() => {
+                if (inventory.includes(selectedItem)) {
+                    generateBuyerOffer(selectedItem);
+                }
+            }, waitTime);
+        }
+
         updateUI();
         renderFeed();
     </script>
