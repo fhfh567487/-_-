@@ -428,9 +428,110 @@
       border: 1px solid var(--border);
     }
     .btn-close:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+
+    /* TOAST */
+    .toast-wrap {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: min(92vw, 360px);
+      pointer-events: none;
+    }
+    .toast-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s ease-out;
+      pointer-events: auto;
+    }
+    .toast-item.hide { animation: toastOut 0.25s ease-in forwards; }
+    .toast-item.success { border-color: rgba(34, 197, 94, 0.4); background: #13261c; }
+    .toast-item.error { border-color: rgba(239, 68, 68, 0.4); background: #261313; }
+    .toast-item.info { border-color: rgba(59, 158, 255, 0.4); background: #131c26; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-12px); }
+    }
+
+    /* CONFIRM */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 2500;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .confirm-overlay.active { display: flex; }
+    .confirm-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      width: min(100%, 340px);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .confirm-box p {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+    .confirm-actions { display: flex; gap: 10px; }
+    .confirm-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+    .confirm-yes {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+    .confirm-no {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border) !important;
+    }
   </style>
 </head>
 <body>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <p id="confirm-text">Вы уверены?</p>
+      <div class="confirm-actions">
+        <button class="confirm-no" id="confirm-no">Отмена</button>
+        <button class="confirm-yes" id="confirm-yes">Да</button>
+      </div>
+    </div>
+  </div>
 
   <header>
     <h1>АвитоБизнес</h1>
@@ -622,6 +723,46 @@
       return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
     }
 
+    // Уведомления на сайте (вместо alert)
+    function showToast(message, type = 'info') {
+      const wrap = document.getElementById('toast-wrap');
+      const el = document.createElement('div');
+      el.className = 'toast-item ' + type;
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('hide');
+        setTimeout(() => el.remove(), 250);
+      }, 2800);
+    }
+
+    // Подтверждение на сайте (вместо confirm)
+    function showConfirm(message) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('confirm-overlay');
+        document.getElementById('confirm-text').innerText = message;
+        overlay.classList.add('active');
+
+        const yesBtn = document.getElementById('confirm-yes');
+        const noBtn = document.getElementById('confirm-no');
+
+        function cleanup(result) {
+          overlay.classList.remove('active');
+          yesBtn.onclick = null;
+          noBtn.onclick = null;
+          overlay.onclick = null;
+          resolve(result);
+        }
+
+        yesBtn.onclick = () => cleanup(true);
+        noBtn.onclick = () => cleanup(false);
+        overlay.onclick = (e) => {
+          if (e.target === overlay) cleanup(false);
+        };
+      });
+    }
+
     function saveGame() {
       localStorage.setItem('avito_biz_state_v2', JSON.stringify(state));
     }
@@ -648,8 +789,9 @@
       scheduleNextListing();
     }
 
-    function resetGame() {
-      if (confirm('Сбросить весь прогресс?')) {
+    async function resetGame() {
+      const ok = await showConfirm('Сбросить весь прогресс?');
+      if (ok) {
         localStorage.removeItem('avito_biz_state_v2');
         localStorage.removeItem('avito_biz_state');
         location.reload();
@@ -914,7 +1056,7 @@
       const item = state.market[idx];
 
       if (state.balance < item.price) {
-        alert('Недостаточно денег на балансе!');
+        showToast('Недостаточно денег на балансе!', 'error');
         return;
       }
 
@@ -932,7 +1074,7 @@
       saveGame();
       closeModal();
       render();
-      alert('Вы успешно купили товар! Он выставлен в раздел «Мои объявления».');
+      showToast('Товар куплен и выставлен в «Мои объявления»', 'success');
     }
 
     function acceptOffer(id) {
@@ -943,13 +1085,14 @@
 
       const salePrice = item.buyerOffer.price;
       state.balance += salePrice;
+      const title = item.title;
 
       state.mySales.splice(idx, 1);
 
       saveGame();
       closeModal();
       render();
-      alert(`🎉 Поздравляем! Вы успешно продали ${item.title} за ${salePrice.toLocaleString()} ₽!`);
+      showToast(`Продано: ${title} за ${salePrice.toLocaleString()} ₽`, 'success');
     }
 
     function rejectOffer(id) {
