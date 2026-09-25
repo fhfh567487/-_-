@@ -317,7 +317,7 @@
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('market', this)">Рынок</button>
+        <button class="tab-btn active" onclick="switchTab('market', this)">Рынок (<span id="market-count">0</span>)</button>
         <button class="tab-btn" onclick="switchTab('inventory', this)">Мои объявления (<span id="inv-count">0</span>)</button>
     </div>
 
@@ -340,19 +340,55 @@
     </div>
 
     <script>
-        // Стандартный набор товаров
-        const defaultMarketItems = [
-            { id: 1, title: 'iPhone 11 64GB', category: 'tech', price: 12000, realValue: 18000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400', desc: 'Срочно! Экран немного в царапинах, батарея 81%.' },
-            { id: 2, title: 'Игровая приставка PS4 Slim', category: 'tech', price: 9000, realValue: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400', desc: 'Отдам с двумя джойстиками. Шумит, надо почистить.' },
-            { id: 3, title: 'Ноутбук Lenovo i3 / 8GB', category: 'tech', price: 8000, realValue: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400', desc: 'Для учебы и работы. Тормозит HDD.' },
-            { id: 4, title: 'Видеокарта GTX 1060 6GB', category: 'tech', price: 5000, realValue: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400', desc: 'Стояла в домашнем ПК, не майнилась.' },
-            { id: 5, title: 'Кроссовки Nike Air Force 1', category: 'clothes', price: 2000, realValue: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400', desc: 'Оригинал. Немного грязные, стирка решит проблему.' },
-            { id: 6, title: 'Кожаная куртка (винтаж)', category: 'clothes', price: 1500, realValue: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', desc: 'Настоящая кожа. Лежала на чердаке.' },
-            { id: 7, title: 'Старый ВАЗ 2107 (на ходу)', category: 'auto', price: 35000, realValue: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'На ходу, пороги устали. Музыка есть.' },
-            { id: 8, title: 'Кофемашина DeLonghi', category: 'home', price: 4000, realValue: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Работает хорошо, нужно почистить от накипи.' }
+        // Шаблоны для генерации 100+ товаров
+        const itemTemplates = {
+            tech: [
+                { title: 'iPhone 11 64GB', basePrice: 15000, img: 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400' },
+                { title: 'iPhone 12 Pro 128GB', basePrice: 32000, img: 'https://images.unsplash.com/photo-1603891128711-11b4b0320d5d?w=400' },
+                { title: 'Игровая приставка PS4 Slim', basePrice: 14000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400' },
+                { title: 'PlayStation 5 Digital', basePrice: 42000, img: 'https://images.unsplash.com/photo-1606813900088-3482a20a4d53?w=400' },
+                { title: 'Ноутбук Lenovo i3 / 8GB', basePrice: 13000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400' },
+                { title: 'MacBook Air M1 256GB', basePrice: 55000, img: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400' },
+                { title: 'Видеокарта GTX 1060 6GB', basePrice: 8500, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400' },
+                { title: 'Видеокарта RTX 3060 12GB', basePrice: 24000, img: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400' },
+                { title: 'Наушники AirPods 2', basePrice: 6000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400' },
+                { title: 'Планшет iPad Air 2', basePrice: 11000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400' }
+            ],
+            clothes: [
+                { title: 'Кроссовки Nike Air Force 1', basePrice: 4500, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400' },
+                { title: 'Кроссовки Adidas Forum Low', basePrice: 5200, img: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400' },
+                { title: 'Кожаная куртка (винтаж)', basePrice: 3500, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400' },
+                { title: 'Худи Stone Island', basePrice: 6000, img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400' },
+                { title: 'Наручные часы Casio G-Shock', basePrice: 4500, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400' },
+                { title: 'Джинсы Levi’s 501', basePrice: 3000, img: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400' }
+            ],
+            auto: [
+                { title: 'Старый ВАЗ 2107 (на ходу)', basePrice: 55000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400' },
+                { title: 'ВАЗ 2114 (2008 год)', basePrice: 90000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=400' },
+                { title: 'Литые диски R16 (4 шт)', basePrice: 13000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=400' },
+                { title: 'Сабвуфер 1000W с усилителем', basePrice: 9000, img: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400' },
+                { title: 'Автомагнитола 2-DIN Android', basePrice: 7000, img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400' }
+            ],
+            home: [
+                { title: 'Кофемашина DeLonghi', basePrice: 8500, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400' },
+                { title: 'Пылесос Dyson', basePrice: 12000, img: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400' },
+                { title: 'Виниловый проигрыватель', basePrice: 6000, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400' },
+                { title: 'Микроволновка Samsung', basePrice: 3000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400' },
+                { title: 'Гитара акустическая Fender', basePrice: 9500, img: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400' },
+                { title: 'Ретро фотоаппарат Зенит-Е', basePrice: 4000, img: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400' }
+            ]
+        };
+
+        const descriptions = [
+            "Срочно нужны деньги! Работает отлично.",
+            "Лежит без дела. Состояние хорошего б/у.",
+            "Есть небольшие дефекты, на работу не влияют.",
+            "Покупал новым, использовал редко.",
+            "Полный комплект, чек остался.",
+            "Требуется небольшая чистка/настройка.",
+            "Отдам самовывозом. Без обмена!"
         ];
 
-        // Фразы покупателей
         const buyerPhrases = [
             { text: "Здравствуйте! Заберу прямо сейчас за {price} ₽, устраивает?", discount: 0.85 },
             { text: "Приветствую! Готов купить за {price} ₽, больше нет.", discount: 0.80 },
@@ -360,7 +396,7 @@
             { text: "Здравствуйте, заберу без проверок по вашей цене ({price} ₽)!", discount: 1.0 }
         ];
 
-        // Инициализация игровых переменных
+        // Переменные состояния
         let balance = 10000;
         let currentCat = 'all';
         let currentTab = 'market';
@@ -368,14 +404,40 @@
         let inventory = [];
         let marketItems = [];
 
-        // Сохранение прогресса в localStorage
+        // Функция генерации 100 случайных товаров
+        function generate100Items() {
+            const list = [];
+            const categories = Object.keys(itemTemplates);
+
+            for (let i = 1; i <= 100; i++) {
+                const cat = categories[Math.floor(Math.random() * categories.length)];
+                const templates = itemTemplates[cat];
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                
+                // Случайная скидка на рынке (от 20% до 50% от реальной цены)
+                const discount = 0.5 + Math.random() * 0.3;
+                const realValue = template.basePrice;
+                const price = Math.round((realValue * discount) / 100) * 100;
+
+                list.push({
+                    id: i,
+                    title: template.title,
+                    category: cat,
+                    price: price,
+                    realValue: realValue,
+                    img: template.img,
+                    desc: descriptions[Math.floor(Math.random() * descriptions.length)]
+                });
+            }
+            return list;
+        }
+
         function saveGame() {
             localStorage.setItem('avito_balance', balance);
             localStorage.setItem('avito_inventory', JSON.stringify(inventory));
             localStorage.setItem('avito_marketItems', JSON.stringify(marketItems));
         }
 
-        // Загрузка сохраненного прогресса
         function loadGame() {
             const savedBalance = localStorage.getItem('avito_balance');
             const savedInventory = localStorage.getItem('avito_inventory');
@@ -383,16 +445,16 @@
 
             if (savedBalance !== null) balance = parseInt(savedBalance);
             if (savedInventory !== null) inventory = JSON.parse(savedInventory);
+            
             if (savedMarket !== null) {
                 marketItems = JSON.parse(savedMarket);
             } else {
-                marketItems = JSON.parse(JSON.stringify(defaultMarketItems));
+                marketItems = generate100Items();
             }
         }
 
-        // Сброс сохранения
         function resetGame() {
-            if (confirm('Вы уверены, что хотите сбросить весь прогресс?')) {
+            if (confirm('Вы уверены, что хотите сбросить весь прогресс и заново сгенерировать 100 товаров?')) {
                 localStorage.clear();
                 location.reload();
             }
@@ -401,6 +463,7 @@
         function updateUI() {
             document.getElementById('balance').innerText = `Баланс: ${balance.toLocaleString()} ₽`;
             document.getElementById('inv-count').innerText = inventory.length;
+            document.getElementById('market-count').innerText = marketItems.length;
         }
 
         function renderFeed() {
@@ -466,7 +529,7 @@
             const chat = document.getElementById('chat');
 
             if (currentTab === 'market') {
-                document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽`;
+                document.getElementById('modal-price').innerText = `${item.price.toLocaleString()} ₽ (Рыночная: ~${item.realValue.toLocaleString()} ₽)`;
                 chat.innerHTML = '<div class="msg seller">Здравствуйте! Продаю срочно.</div>';
                 actions.innerHTML = `
                     <button class="action-btn secondary" onclick="bargain()">📉 Попробовать сбить цену (-15%)</button>
@@ -512,7 +575,7 @@
             if (Math.random() > 0.4) {
                 const newPrice = Math.round(selectedItem.price * 0.85);
                 selectedItem.price = newPrice;
-                document.getElementById('modal-price').innerText = `${newPrice.toLocaleString()} ₽`;
+                document.getElementById('modal-price').innerText = `${newPrice.toLocaleString()} ₽ (Рыночная: ~${selectedItem.realValue.toLocaleString()} ₽)`;
                 saveGame();
                 setTimeout(() => {
                     chat.innerHTML += `<div class="msg seller">Ладно, отдам за ${newPrice.toLocaleString()} ₽!</div>`;
@@ -604,12 +667,10 @@
             scheduleOffer(selectedItem);
         }
 
-        // Запуск при открытии страницы
         loadGame();
         updateUI();
         renderFeed();
 
-        // Авто-генерация покупателей для уже выставленных товаров при перезагрузке
         inventory.forEach(item => {
             if (item.isListed && !item.pendingOffer) {
                 scheduleOffer(item);
