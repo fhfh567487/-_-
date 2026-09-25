@@ -6,92 +6,431 @@
   <title>АвитоБизнес — Симулятор Перекупа</title>
   <style>
     :root {
-      --bg: #121212;
-      --card-bg: #1e1e1e;
-      --input-bg: #2a2a2a;
-      --primary: #00aaff;
-      --text: #ffffff;
-      --text-muted: #aaaaaa;
-      --accent-green: #2e7d32;
-      --accent-red: #e53935;
+      --bg: #0c0e14;
+      --bg-elevated: #12151f;
+      --card-bg: #171b26;
+      --card-hover: #1c2230;
+      --input-bg: #1a1f2e;
+      --primary: #3b9eff;
+      --primary-dim: rgba(59, 158, 255, 0.15);
+      --text: #f0f2f5;
+      --text-muted: #8b93a7;
+      --accent-green: #22c55e;
+      --accent-green-dim: rgba(34, 197, 94, 0.15);
+      --accent-red: #ef4444;
+      --accent-orange: #f59e0b;
+      --border: rgba(255, 255, 255, 0.06);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --radius: 14px;
+      --radius-sm: 10px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 20px; }
 
-    .toast {
-      position: fixed;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: var(--primary);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      z-index: 2000;
-      transition: transform 0.4s ease;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 32px;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 158, 255, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(34, 197, 94, 0.06), transparent);
     }
-    .toast.show { transform: translateX(-50%) translateY(0); }
 
-    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #181818; border-bottom: 1px solid #282828; }
-    header h1 { font-size: 20px; color: #1e88e5; font-weight: bold; }
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(12, 14, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #5eb3ff, #3b9eff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .header-right { display: flex; align-items: center; gap: 10px; }
-    .balance-tag { background: #222; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; color: #bbb; }
-    .balance-value { color: #fff; }
-    .btn-reset { background: #d32f2f; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .balance-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-dim);
+      border: 1px solid rgba(59, 158, 255, 0.25);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .balance-value { color: #7ec8ff; font-weight: 800; font-size: 14px; }
+    .btn-reset {
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { background: rgba(239, 68, 68, 0.22); }
 
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+    .container { max-width: 560px; margin: 0 auto; padding: 16px; }
 
-    .search-box { width: 100%; padding: 12px 15px; background: var(--input-bg); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; margin-bottom: 12px; outline: none; }
-    .categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
-    .cat-btn { background: #252525; border: none; color: #ccc; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; }
-    .cat-btn.active { background: #0288d1; color: #fff; }
+    /* SEARCH */
+    .search-wrap { position: relative; margin-bottom: 14px; }
+    .search-wrap::before {
+      content: '🔍';
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .search-box {
+      width: 100%;
+      padding: 13px 16px 13px 40px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box:focus {
+      border-color: rgba(59, 158, 255, 0.45);
+      box-shadow: 0 0 0 3px var(--primary-dim);
+    }
+    .search-box::placeholder { color: #5a6278; }
 
-    .bottom-nav { display: flex; margin-bottom: 15px; border-bottom: 1px solid #333; }
-    .nav-tab { flex: 1; padding: 10px; text-align: center; font-weight: 600; color: #888; cursor: pointer; border-bottom: 2px solid transparent; }
-    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    /* CATEGORIES */
+    .categories {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+    .categories::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn:hover { border-color: rgba(255,255,255,0.12); color: var(--text); }
+    .cat-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 158, 255, 0.35);
+    }
 
-    .grid { display: flex; flex-direction: column; gap: 12px; }
-    .item-card { background: var(--card-bg); border-radius: 10px; padding: 12px; display: flex; gap: 12px; cursor: pointer; border: 1px solid #282828; position: relative; }
-    .item-card img { width: 100px; height: 80px; object-fit: cover; border-radius: 6px; background: #333; }
-    .item-info { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
-    .item-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-    .item-price { font-size: 16px; font-weight: bold; color: #fff; }
-    .item-market { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .badge-offer { position: absolute; top: 10px; right: 10px; background: #f57c00; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 10px; animation: pulse 1.5s infinite; }
+    /* TABS */
+    .bottom-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: var(--card-bg);
+      padding: 5px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 11px 8px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active {
+      background: var(--primary-dim);
+      color: var(--primary);
+    }
 
-    @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+    /* CARDS */
+    .grid { display: flex; flex-direction: column; gap: 10px; }
+    .item-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 12px;
+      display: flex;
+      gap: 14px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      animation: cardIn 0.35s ease-out;
+    }
+    .item-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(59, 158, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    .item-card:active { transform: scale(0.98); }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .item-card img {
+      width: 96px;
+      height: 88px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      background: #0f1219;
+      flex-shrink: 0;
+    }
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+      gap: 3px;
+    }
+    .item-cat {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .item-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-price {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 2px;
+    }
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+    .item-market {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .profit-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+    }
+    .badge-offer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.04); }
+    }
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .empty-state span { font-size: 40px; display: block; margin-bottom: 12px; }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: flex-end; }
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
     .modal-overlay.active { display: flex; }
-    .preview-modal { background: #181818; width: 100%; max-width: 500px; height: 92vh; border-top-left-radius: 16px; border-top-right-radius: 16px; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+    .preview-modal {
+      background: var(--bg-elevated);
+      width: 100%;
+      max-width: 500px;
+      max-height: 92vh;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 20px 24px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+      margin: 4px auto 16px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.3;
+      letter-spacing: -0.3px;
+    }
+    .preview-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      background: #0f1219;
+    }
+    .preview-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .price-main { font-size: 20px; font-weight: 800; }
+    .price-market { font-size: 13px; color: var(--text-muted); font-weight: 500; display: block; margin-top: 4px; }
 
-    .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
-    .preview-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; background: #333; }
-    .preview-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
-
-    .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .price-main { font-size: 18px; font-weight: bold; }
-    .price-market { font-size: 14px; color: var(--text-muted); font-weight: normal; }
-
-    .chat-box-area { background: #111; border-radius: 8px; padding: 12px; min-height: 120px; max-height: 220px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #282828; display: flex; flex-direction: column; gap: 8px; }
-    .msg { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; word-break: break-word; }
-    .msg.seller { background: #2a2a2a; color: #eee; align-self: flex-start; }
-    .msg.player { background: #0288d1; color: #fff; align-self: flex-end; }
+    .chat-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .chat-box-area {
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      min-height: 110px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .msg {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      max-width: 88%;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .msg.seller {
+      background: #222836;
+      color: #e8eaef;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.player {
+      background: linear-gradient(135deg, #3b9eff, #2563eb);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
 
     .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
-    .btn-modal { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; color: #fff; cursor: pointer; }
-    .btn-bargain { background: #0288d1; }
-    .btn-buy { background: #2e7d32; }
-    .btn-sell { background: #f57c00; }
-    .btn-close { background: #e53935; }
+    .btn-modal {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal:hover { filter: brightness(1.08); }
+    .btn-modal:active { transform: scale(0.98); }
+    .btn-bargain {
+      background: linear-gradient(135deg, #3b9eff, #2563eb);
+      box-shadow: 0 4px 14px rgba(59, 158, 255, 0.3);
+    }
+    .btn-buy {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+    }
+    .btn-sell {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+    .btn-close {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-close:hover { color: var(--text); background: rgba(255,255,255,0.04); }
   </style>
 </head>
 <body>
-
-  <div class="toast" id="toast">🔔 Новое объявление на рынке!</div>
 
   <header>
     <h1>АвитоБизнес</h1>
@@ -102,7 +441,9 @@
   </header>
 
   <div class="container">
-    <input type="text" class="search-box" id="search-input" placeholder="Поиск по объявлениям..." oninput="render()">
+    <div class="search-wrap">
+      <input type="text" class="search-box" id="search-input" placeholder="Поиск по объявлениям..." oninput="render()">
+    </div>
 
     <div class="categories">
       <button class="cat-btn active" onclick="filterCategory('Все', this)">Все</button>
@@ -113,26 +454,28 @@
     </div>
 
     <div class="bottom-nav">
-      <div class="nav-tab active" id="tab-m" onclick="switchTab('market')">🛒 Рынок (<span id="count-market">0</span>)</div>
-      <div class="nav-tab" id="tab-i" onclick="switchTab('my_sales')">📢 Мои объявления (<span id="count-sales">0</span>)</div>
+      <div class="nav-tab active" id="tab-m" onclick="switchTab('market')">🛒 Рынок · <span id="count-market">0</span></div>
+      <div class="nav-tab" id="tab-i" onclick="switchTab('my_sales')">📢 Мои · <span id="count-sales">0</span></div>
     </div>
 
     <div class="grid" id="items-list"></div>
   </div>
 
-  <div class="modal-overlay" id="preview-modal">
+  <div class="modal-overlay" id="preview-modal" onclick="if(event.target===this)closeModal()">
     <div class="preview-modal">
+      <div class="modal-handle"></div>
       <div class="modal-title" id="m-title">--</div>
       <img id="m-img" src="" class="preview-img" alt="">
       <div class="preview-desc" id="m-desc">--</div>
 
       <div class="price-row">
-        <div class="price-main">
-          <span id="m-price">0</span> ₽
-          <span class="price-market" id="m-market-wrap">(Рыночная: ~<span id="m-market">0</span> ₽)</span>
+        <div>
+          <div class="price-main"><span id="m-price">0</span> ₽</div>
+          <span class="price-market" id="m-market-wrap">Рыночная: ~<span id="m-market">0</span> ₽</span>
         </div>
       </div>
 
+      <div class="chat-label">Чат с продавцом</div>
       <div class="chat-box-area" id="chat-box"></div>
       <div class="modal-actions" id="m-actions"></div>
     </div>
@@ -142,107 +485,107 @@
     // Много разных шаблонов, чтобы объявления не повторялись
     const templates = {
       'Электроника': [
-        { title: 'iPhone 11 64GB', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500' },
-        { title: 'iPhone 12 128GB', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=500' },
-        { title: 'iPhone 13 Pro', minP: 35000, maxP: 50000, img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500' },
-        { title: 'iPhone 14', minP: 40000, maxP: 55000, img: 'https://images.unsplash.com/photo-1678685888229-5fe25a6e4236?w=500' },
-        { title: 'Samsung Galaxy S21', minP: 15000, maxP: 24000, img: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=500' },
-        { title: 'Samsung Galaxy S23', minP: 28000, maxP: 40000, img: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500' },
-        { title: 'Xiaomi Redmi Note 12', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500' },
-        { title: 'PlayStation 4 Slim', minP: 10000, maxP: 16000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500' },
-        { title: 'PlayStation 5', minP: 30000, maxP: 42000, img: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500' },
-        { title: 'Xbox Series S', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=500' },
-        { title: 'Nintendo Switch', minP: 14000, maxP: 22000, img: 'https://images.unsplash.com/photo-1578303512597-81e6d8c1a0c5?w=500' },
-        { title: 'AirPods Pro 2', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500' },
-        { title: 'AirPods 3', minP: 6000, maxP: 11000, img: 'https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?w=500' },
-        { title: 'Sony WH-1000XM4', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500' },
-        { title: 'Ноутбук ASUS i5', minP: 15000, maxP: 25000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500' },
-        { title: 'Ноутбук Lenovo IdeaPad', minP: 18000, maxP: 28000, img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500' },
-        { title: 'MacBook Air M1', minP: 40000, maxP: 60000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500' },
-        { title: 'MacBook Pro 14', minP: 70000, maxP: 100000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500' },
-        { title: 'Видеокарта RTX 3060', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500' },
-        { title: 'Видеокарта RTX 4070', minP: 35000, maxP: 50000, img: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=500' },
-        { title: 'Монитор 27" 144Hz', minP: 10000, maxP: 18000, img: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500' },
-        { title: 'Клавиатура механическая', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500' },
-        { title: 'Мышь Logitech G502', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500' },
-        { title: 'Планшет iPad 9', minP: 15000, maxP: 24000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500' },
-        { title: 'Планшет Samsung Tab S8', minP: 20000, maxP: 32000, img: 'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=500' },
-        { title: 'Колонка JBL Flip 6', minP: 4000, maxP: 8000, img: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500' },
-        { title: 'Умные часы Apple Watch SE', minP: 12000, maxP: 20000, img: 'https://images.unsplash.com/photo-1434493789847-2f02dc269ee6?w=500' },
-        { title: 'Фотоаппарат Canon EOS', minP: 20000, maxP: 35000, img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500' },
-        { title: 'Электросамокат Xiaomi', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' },
-        { title: 'Роутер TP-Link AX3000', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1606904824275-c7e5c5b5e0e0?w=500' }
+        { title: 'iPhone 11 64GB', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1592890288564-76628a0b0506?w=500&h=400&fit=crop' },
+        { title: 'iPhone 12 128GB', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1603891128711-11b4d4d1b0e6?w=500&h=400&fit=crop' },
+        { title: 'iPhone 13 Pro', minP: 35000, maxP: 50000, img: 'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500&h=400&fit=crop' },
+        { title: 'iPhone 14', minP: 40000, maxP: 55000, img: 'https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?w=500&h=400&fit=crop' },
+        { title: 'Samsung Galaxy S21', minP: 15000, maxP: 24000, img: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&h=400&fit=crop' },
+        { title: 'Samsung Galaxy S23', minP: 28000, maxP: 40000, img: 'https://images.unsplash.com/photo-1678911820864-e5c67e819b63?w=500&h=400&fit=crop' },
+        { title: 'Xiaomi Redmi Note 12', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&h=400&fit=crop' },
+        { title: 'PlayStation 4 Slim', minP: 10000, maxP: 16000, img: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=500&h=400&fit=crop' },
+        { title: 'PlayStation 5', minP: 30000, maxP: 42000, img: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500&h=400&fit=crop' },
+        { title: 'Xbox Series S', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=500&h=400&fit=crop' },
+        { title: 'Nintendo Switch', minP: 14000, maxP: 22000, img: 'https://images.unsplash.com/photo-1578303512597-81e6d8c1a0c5?w=500&h=400&fit=crop' },
+        { title: 'AirPods Pro 2', minP: 8000, maxP: 14000, img: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&h=400&fit=crop' },
+        { title: 'AirPods 3', minP: 6000, maxP: 11000, img: 'https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?w=500&h=400&fit=crop' },
+        { title: 'Sony WH-1000XM4', minP: 12000, maxP: 18000, img: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500&h=400&fit=crop' },
+        { title: 'Ноутбук ASUS i5', minP: 15000, maxP: 25000, img: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500&h=400&fit=crop' },
+        { title: 'Ноутбук Lenovo IdeaPad', minP: 18000, maxP: 28000, img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop' },
+        { title: 'MacBook Air M1', minP: 40000, maxP: 60000, img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=400&fit=crop' },
+        { title: 'MacBook Pro 14', minP: 70000, maxP: 100000, img: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=500&h=400&fit=crop' },
+        { title: 'Видеокарта RTX 3060', minP: 18000, maxP: 26000, img: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=500&h=400&fit=crop' },
+        { title: 'Видеокарта RTX 4070', minP: 35000, maxP: 50000, img: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&h=400&fit=crop' },
+        { title: 'Монитор 27" 144Hz', minP: 10000, maxP: 18000, img: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&h=400&fit=crop' },
+        { title: 'Клавиатура механическая', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500&h=400&fit=crop' },
+        { title: 'Мышь Logitech G502', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&h=400&fit=crop' },
+        { title: 'Планшет iPad 9', minP: 15000, maxP: 24000, img: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&h=400&fit=crop' },
+        { title: 'Планшет Samsung Tab S8', minP: 20000, maxP: 32000, img: 'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=500&h=400&fit=crop' },
+        { title: 'Колонка JBL Flip 6', minP: 4000, maxP: 8000, img: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&h=400&fit=crop' },
+        { title: 'Умные часы Apple Watch SE', minP: 12000, maxP: 20000, img: 'https://images.unsplash.com/photo-1434493789847-2f02dc269ee6?w=500&h=400&fit=crop' },
+        { title: 'Фотоаппарат Canon EOS', minP: 20000, maxP: 35000, img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&h=400&fit=crop' },
+        { title: 'Электросамокат Xiaomi', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=500&h=400&fit=crop' },
+        { title: 'Роутер TP-Link AX3000', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1606904824275-c7e5c5b5e0e0?w=500&h=400&fit=crop' }
       ],
       'Авто': [
-        { title: 'ВАЗ 2114 (2008)', minP: 50000, maxP: 90000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500' },
-        { title: 'Лада Приора (2012)', minP: 110000, maxP: 180000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500' },
-        { title: 'ВАЗ 2107 (2006)', minP: 30000, maxP: 60000, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500' },
-        { title: 'Лада Гранта (2015)', minP: 250000, maxP: 380000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500' },
-        { title: 'Hyundai Solaris (2014)', minP: 400000, maxP: 550000, img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500' },
-        { title: 'Kia Rio (2016)', minP: 450000, maxP: 600000, img: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=500' },
-        { title: 'Комплект колес R16', minP: 8000, maxP: 15000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=500' },
-        { title: 'Комплект колес R17 зима', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' },
-        { title: 'Автомагнитола 2DIN', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
-        { title: 'Видеорегистратор 4K', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1449965408268-c8f0a4b6e8f1?w=500' },
-        { title: 'Аккумулятор 60Ah', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
-        { title: 'Дворники зимние комплект', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1449965408268-c8f0a4b6e8f1?w=500' },
-        { title: 'Чехлы на сиденья', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500' },
-        { title: 'Набор инструментов авто', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=500' },
-        { title: 'Домкрат гидравлический', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
-        { title: 'Автомобильный компрессор', minP: 1200, maxP: 3500, img: 'https://images.unsplash.com/photo-1449965408268-c8f0a4b6e8f1?w=500' },
-        { title: 'Сумка-органайзер в багажник', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' },
-        { title: 'Зарядка для АКБ', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500' },
-        { title: 'Коврики салона резиновые', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500' },
-        { title: 'Полироль + губка набор', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' }
+        { title: 'ВАЗ 2114 (2008)', minP: 50000, maxP: 90000, img: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500&h=400&fit=crop' },
+        { title: 'Лада Приора (2012)', minP: 110000, maxP: 180000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&h=400&fit=crop' },
+        { title: 'ВАЗ 2107 (2006)', minP: 30000, maxP: 60000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&h=400&fit=crop' },
+        { title: 'Лада Гранта (2015)', minP: 250000, maxP: 380000, img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500&h=400&fit=crop' },
+        { title: 'Hyundai Solaris (2014)', minP: 400000, maxP: 550000, img: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=500&h=400&fit=crop' },
+        { title: 'Kia Rio (2016)', minP: 450000, maxP: 600000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=500&h=400&fit=crop' },
+        { title: 'Комплект колес R16', minP: 8000, maxP: 15000, img: 'https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?w=500&h=400&fit=crop' },
+        { title: 'Комплект колес R17 зима', minP: 12000, maxP: 22000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&h=400&fit=crop' },
+        { title: 'Автомагнитола 2DIN', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500&h=400&fit=crop' },
+        { title: 'Видеорегистратор 4K', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1449965408268-c8f0a4b6e8f1?w=500&h=400&fit=crop' },
+        { title: 'Аккумулятор 60Ah', minP: 3500, maxP: 7000, img: 'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?w=500&h=400&fit=crop' },
+        { title: 'Дворники зимние комплект', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1489824904134-891ab64535f1?w=500&h=400&fit=crop' },
+        { title: 'Чехлы на сиденья', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1449965408268-c8f0a4b6e8f1?w=500&h=400&fit=crop' },
+        { title: 'Набор инструментов авто', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=500&h=400&fit=crop' },
+        { title: 'Домкрат гидравлический', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=500&h=400&fit=crop' },
+        { title: 'Автомобильный компрессор', minP: 1200, maxP: 3500, img: 'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?w=500&h=400&fit=crop' },
+        { title: 'Сумка-органайзер в багажник', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=400&fit=crop' },
+        { title: 'Зарядка для АКБ', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1593941707881-8e8c4db294a4?w=500&h=400&fit=crop' },
+        { title: 'Коврики салона резиновые', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&h=400&fit=crop' },
+        { title: 'Полироль + губка набор', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=500&h=400&fit=crop' }
       ],
       'Одежда': [
-        { title: 'Nike Air Force 1', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500' },
-        { title: 'Adidas Ultraboost', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500' },
-        { title: 'New Balance 574', minP: 3500, maxP: 7500, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500' },
-        { title: 'Куртка The North Face', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500' },
-        { title: 'Пуховик Columbia', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1548126032-079a0fb382df?w=500' },
-        { title: 'Часы Casio G-Shock', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500' },
-        { title: 'Часы Casio стандарт', minP: 1500, maxP: 3500, img: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500' },
-        { title: 'Рюкзак Nike', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500' },
-        { title: 'Рюкзак Eastpak', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=500' },
-        { title: 'Кроссовки Puma RS-X', minP: 3000, maxP: 6500, img: 'https://images.unsplash.com/photo-1608231387043-4c0b4f4b0e0e?w=500' },
-        { title: 'Худи Nike', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500' },
-        { title: 'Худи Adidas', minP: 1800, maxP: 4500, img: 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500' },
-        { title: 'Джинсы Levi\'s 501', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500' },
-        { title: 'Куртка кожаная', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500' },
-        { title: 'Шапка зимняя', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=500' },
-        { title: 'Перчатки кожаные', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1617114919297-3c8ddb01f599?w=500' },
-        { title: 'Ремень кожаный', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1624222247344-550fb605bf28?w=500' },
-        { title: 'Сумка через плечо', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500' },
-        { title: 'Очки Ray-Ban', minP: 3000, maxP: 8000, img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500' },
-        { title: 'Кепка New Era', minP: 1000, maxP: 2500, img: 'https://images.unsplash.com/photo-1588850561407-ed78c314e09d?w=500' }
+        { title: 'Nike Air Force 1', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=400&fit=crop' },
+        { title: 'Adidas Ultraboost', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&h=400&fit=crop' },
+        { title: 'New Balance 574', minP: 3500, maxP: 7500, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500&h=400&fit=crop' },
+        { title: 'Куртка The North Face', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1548126032-079a0fb382df?w=500&h=400&fit=crop' },
+        { title: 'Пуховик Columbia', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&h=400&fit=crop' },
+        { title: 'Часы Casio G-Shock', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=400&fit=crop' },
+        { title: 'Часы Casio стандарт', minP: 1500, maxP: 3500, img: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500&h=400&fit=crop' },
+        { title: 'Рюкзак Nike', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=400&fit=crop' },
+        { title: 'Рюкзак Eastpak', minP: 2000, maxP: 4500, img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=500&h=400&fit=crop' },
+        { title: 'Кроссовки Puma RS-X', minP: 3000, maxP: 6500, img: 'https://images.unsplash.com/photo-1608231387043-4c0b4f4b0e0e?w=500&h=400&fit=crop' },
+        { title: 'Худи Nike', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500&h=400&fit=crop' },
+        { title: 'Худи Adidas', minP: 1800, maxP: 4500, img: 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500&h=400&fit=crop' },
+        { title: 'Джинсы Levi\'s 501', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&h=400&fit=crop' },
+        { title: 'Куртка кожаная', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1521223890158-f9f7c3d5f504?w=500&h=400&fit=crop' },
+        { title: 'Шапка зимняя', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=500&h=400&fit=crop' },
+        { title: 'Перчатки кожаные', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1617114919297-3c8ddb01f599?w=500&h=400&fit=crop' },
+        { title: 'Ремень кожаный', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1624222247344-550fb605bf28?w=500&h=400&fit=crop' },
+        { title: 'Сумка через плечо', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=400&fit=crop' },
+        { title: 'Очки Ray-Ban', minP: 3000, maxP: 8000, img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&h=400&fit=crop' },
+        { title: 'Кепка New Era', minP: 1000, maxP: 2500, img: 'https://images.unsplash.com/photo-1588850561407-ed78c314e09d?w=500&h=400&fit=crop' }
       ],
       'Дом и Уют': [
-        { title: 'Кофемашина DeLonghi', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500' },
-        { title: 'Кофеварка капельная', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500' },
-        { title: 'Диван раскладной', minP: 3500, maxP: 8000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500' },
-        { title: 'Кресло офисное', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500' },
-        { title: 'Игровое кресло', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500' },
-        { title: 'Пылесос Samsung', minP: 4000, maxP: 10000, img: 'https://images.unsplash.com/photo-1558317374-29bd0b958a21?w=500' },
-        { title: 'Робот-пылесос', minP: 8000, maxP: 18000, img: 'https://images.unsplash.com/photo-1558317374-29bd0b958a21?w=500' },
-        { title: 'Микроволновка', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1585659722983-3a6759750b27?w=500' },
-        { title: 'Чайник электрический', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1563822095-4bdb2b197445?w=500' },
-        { title: 'Блендер погружной', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=500' },
-        { title: 'Утюг Philips', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=500' },
-        { title: 'Обогреватель масляный', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=500' },
-        { title: 'Вентилятор напольный', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' },
-        { title: 'Лампа настольная LED', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500' },
-        { title: 'Стеллаж деревянный', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1594620302200-9a762244a156?w=500' },
-        { title: 'Зеркало настенное', minP: 1000, maxP: 3500, img: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=500' },
-        { title: 'Комплект постельного белья', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500' },
-        { title: 'Плед флисовый', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500' },
-        { title: 'Набор кастрюль', minP: 2000, maxP: 6000, img: 'https://images.unsplash.com/photo-1584990347449-a5d9f800a783?w=500' },
-        { title: 'Сковорода антипригар', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500' },
-        { title: 'Мультиварка Redmond', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1585659722983-3a6759750b27?w=500' },
-        { title: 'Тостер', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1563822095-4bdb2b197445?w=500' },
-        { title: 'Швабра с отжимом', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1558317374-29bd0b958a21?w=500' },
-        { title: 'Корзина для белья', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500' },
-        { title: 'Ваза декоративная', minP: 500, maxP: 2000, img: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3c?w=500' }
+        { title: 'Кофемашина DeLonghi', minP: 5000, maxP: 12000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&h=400&fit=crop' },
+        { title: 'Кофеварка капельная', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&h=400&fit=crop' },
+        { title: 'Диван раскладной', minP: 3500, maxP: 8000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=400&fit=crop' },
+        { title: 'Кресло офисное', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500&h=400&fit=crop' },
+        { title: 'Игровое кресло', minP: 4000, maxP: 9000, img: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&h=400&fit=crop' },
+        { title: 'Пылесос Samsung', minP: 4000, maxP: 10000, img: 'https://images.unsplash.com/photo-1558317374-29bd0b958a21?w=500&h=400&fit=crop' },
+        { title: 'Робот-пылесос', minP: 8000, maxP: 18000, img: 'https://images.unsplash.com/photo-1625772452859-1c5d6fbd1c4e?w=500&h=400&fit=crop' },
+        { title: 'Микроволновка', minP: 2500, maxP: 6000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=500&h=400&fit=crop' },
+        { title: 'Чайник электрический', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1563822095-4bdb2b197445?w=500&h=400&fit=crop' },
+        { title: 'Блендер погружной', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=500&h=400&fit=crop' },
+        { title: 'Утюг Philips', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=500&h=400&fit=crop' },
+        { title: 'Обогреватель масляный', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=500&h=400&fit=crop' },
+        { title: 'Вентилятор напольный', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1565183928294-70630f37f188?w=500&h=400&fit=crop' },
+        { title: 'Лампа настольная LED', minP: 800, maxP: 2500, img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&h=400&fit=crop' },
+        { title: 'Стеллаж деревянный', minP: 2000, maxP: 5000, img: 'https://images.unsplash.com/photo-1594620302200-9a762244a156?w=500&h=400&fit=crop' },
+        { title: 'Зеркало настенное', minP: 1000, maxP: 3500, img: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=500&h=400&fit=crop' },
+        { title: 'Комплект постельного белья', minP: 1500, maxP: 4000, img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500&h=400&fit=crop' },
+        { title: 'Плед флисовый', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=400&fit=crop' },
+        { title: 'Набор кастрюль', minP: 2000, maxP: 6000, img: 'https://images.unsplash.com/photo-1584990347449-a5d9f800a783?w=500&h=400&fit=crop' },
+        { title: 'Сковорода антипригар', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=500&h=400&fit=crop' },
+        { title: 'Мультиварка Redmond', minP: 3000, maxP: 7000, img: 'https://images.unsplash.com/photo-1585659722983-3a6759750b27?w=500&h=400&fit=crop' },
+        { title: 'Тостер', minP: 1000, maxP: 3000, img: 'https://images.unsplash.com/photo-1616177490281-0c4f0f4f5f5f?w=500&h=400&fit=crop' },
+        { title: 'Швабра с отжимом', minP: 800, maxP: 2000, img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&h=400&fit=crop' },
+        { title: 'Корзина для белья', minP: 500, maxP: 1500, img: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=500&h=400&fit=crop' },
+        { title: 'Ваза декоративная', minP: 500, maxP: 2000, img: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3c?w=500&h=400&fit=crop' }
       ]
     };
 
@@ -294,11 +637,11 @@
         }
         usedTitleKeys = new Set(state.market.map(i => i.uniqueKey).filter(Boolean));
         while (state.market.length < 100) {
-          generateNewMarketItem(false);
+          generateNewMarketItem();
         }
       } else {
         for (let i = 0; i < 100; i++) {
-          generateNewMarketItem(false);
+          generateNewMarketItem();
         }
       }
       render();
@@ -339,8 +682,9 @@
       return pick;
     }
 
-    function generateNewMarketItem(showToastNotification = true) {
-      if (state.market.length >= 200) return;
+    function generateNewMarketItem() {
+      // Максимум 100 объявлений на рынке
+      if (state.market.length >= 100) return;
 
       const pick = pickUniqueTemplate();
       const template = pick.template;
@@ -366,23 +710,15 @@
       state.market.unshift(newItem);
       saveGame();
       render();
-
-      if (showToastNotification) {
-        showToast();
-      }
     }
 
-    function showToast() {
-      const toast = document.getElementById('toast');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-
-    // Новые объявления каждые 5–10 секунд (случайно)
+    // Новые объявления каждые 5–10 сек, только если на рынке меньше 100
     function scheduleNextListing() {
       const delay = 5000 + Math.floor(Math.random() * 5001); // 5000..10000
       setTimeout(() => {
-        generateNewMarketItem(true);
+        if (state.market.length < 100) {
+          generateNewMarketItem();
+        }
         scheduleNextListing();
       }, delay);
     }
@@ -437,29 +773,50 @@
       list.innerHTML = '';
 
       const itemsArr = state.currentTab === 'market' ? state.market : state.mySales;
+      let shown = 0;
 
       itemsArr.forEach(item => {
         if ((state.selectedCategory === 'Все' || item.cat === state.selectedCategory) &&
             item.title.toLowerCase().includes(search)) {
 
+          shown++;
           const card = document.createElement('div');
           card.className = 'item-card';
           card.onclick = () => openModal(item.id);
 
           const hasOfferBadge = state.currentTab === 'my_sales' && item.buyerOffer;
+          const price = state.currentTab === 'market' ? item.price : item.myPrice;
+
+          let metaHtml = '';
+          if (state.currentTab === 'market') {
+            const profit = item.market - item.price;
+            const pct = item.price > 0 ? Math.round((profit / item.price) * 100) : 0;
+            metaHtml = `
+              <div class="item-meta">
+                <span class="item-market">Рынок ~${item.market.toLocaleString()} ₽</span>
+                ${profit > 0 ? `<span class="profit-badge">+${pct}%</span>` : ''}
+              </div>`;
+          } else {
+            metaHtml = `<div class="item-meta"><span class="item-market">Куплено за ${(item.buyPrice || 0).toLocaleString()} ₽</span></div>`;
+          }
 
           card.innerHTML = `
-            ${hasOfferBadge ? '<div class="badge-offer">💬 Есть предложение!</div>' : ''}
-            <img src="${item.img}" alt="">
+            ${hasOfferBadge ? '<div class="badge-offer">💬 Оффер</div>' : ''}
+            <img src="${item.img}" alt="" loading="lazy">
             <div class="item-info">
+              <div class="item-cat">${item.cat || ''}</div>
               <div class="item-title">${item.title}</div>
-              <div class="item-price">${(state.currentTab === 'market' ? item.price : item.myPrice).toLocaleString()} ₽</div>
-              <div class="item-market">${state.currentTab === 'market' ? `Рыночная: ~${item.market.toLocaleString()} ₽` : 'На продаже'}</div>
+              <div class="item-price">${price.toLocaleString()} ₽</div>
+              ${metaHtml}
             </div>
           `;
           list.appendChild(card);
         }
       });
+
+      if (shown === 0) {
+        list.innerHTML = `<div class="empty-state"><span>📭</span>Ничего не найдено</div>`;
+      }
     }
 
     function openModal(id) {
@@ -475,7 +832,7 @@
 
       const marketWrap = document.getElementById('m-market-wrap');
       if (isMarket) {
-        marketWrap.style.display = 'inline';
+        marketWrap.style.display = 'block';
         document.getElementById('m-market').innerText = item.market.toLocaleString();
       } else {
         marketWrap.style.display = 'none';
@@ -514,8 +871,6 @@
 
       actions.innerHTML += `<button class="btn-modal btn-close" onclick="closeModal()">Закрыть</button>`;
       document.getElementById('preview-modal').classList.add('active');
-
-      // Прокрутка чата вниз
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
